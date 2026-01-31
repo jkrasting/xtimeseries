@@ -76,6 +76,9 @@ Contents
    examples/temperature_extremes
    examples/precipitation_idf
    examples/trend_analysis
+   examples/newbrunswick_precipitation
+   examples/model_comparison
+   examples/atlantic_city_sealevel
 
 .. toctree::
    :maxdepth: 2

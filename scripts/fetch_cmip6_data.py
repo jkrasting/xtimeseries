@@ -21,7 +21,7 @@ import pandas as pd
 # Configuration
 TARGET_LAT = 40.49    # New Brunswick, NJ
 TARGET_LON = -74.45
-MODELS = ["GFDL-ESM4", "CESM2"]
+MODELS = ["GFDL-CM4", "CESM2"]
 VARIABLES = ["tas", "tasmax", "pr"]
 EXPERIMENT = "historical"
 OUTPUT_DIR = Path(__file__).parent.parent / "tests" / "data"
@@ -41,7 +41,7 @@ def load_cmip6_catalog():
 
 
 def extract_point_timeseries(ds, var_name, lat, lon):
-    """Extract time series at nearest grid point."""
+    """Extract time series at nearest valid (non-NaN) grid point."""
     # Handle longitude convention
     lon_values = ds["lon"].values
     if lon_values.min() >= 0 and lon_values.max() > 180:
@@ -52,10 +52,52 @@ def extract_point_timeseries(ds, var_name, lat, lon):
     # Select nearest point
     da = ds[var_name].sel(lat=lat, lon=lon_query, method="nearest")
 
-    # Get actual coordinates
-    actual_lat = float(da["lat"].values)
-    actual_lon = float(da["lon"].values)
-    print(f"  Nearest grid point: ({actual_lat:.2f}, {actual_lon:.2f})")
+    # Check if data is all NaN (ocean point)
+    if np.all(np.isnan(da.values)):
+        print(f"  Nearest point is masked (ocean/invalid). Searching for nearest land point...")
+
+        # Search in a region around the target
+        lat_slice = slice(lat - 2, lat + 2)
+        lon_slice = slice(lon_query - 2, lon_query + 2)
+
+        # Get regional subset
+        regional = ds[var_name].sel(lat=lat_slice, lon=lon_slice)
+
+        # Find valid points (check first time step)
+        sample = regional.isel(time=0).values
+        valid_mask = ~np.isnan(sample)
+
+        if not np.any(valid_mask):
+            print(f"  WARNING: No valid land points found in search region!")
+            # Return the NaN data anyway
+            actual_lat = float(da["lat"].values)
+            actual_lon = float(da["lon"].values)
+            print(f"  Nearest grid point: ({actual_lat:.2f}, {actual_lon:.2f})")
+            return da
+
+        # Find the closest valid point
+        lat_idx, lon_idx = np.where(valid_mask)
+        regional_lats = regional["lat"].values
+        regional_lons = regional["lon"].values
+
+        min_dist = float("inf")
+        best_lat, best_lon = None, None
+
+        for i, j in zip(lat_idx, lon_idx):
+            dist = (regional_lats[i] - lat) ** 2 + (regional_lons[j] - lon_query) ** 2
+            if dist < min_dist:
+                min_dist = dist
+                best_lat = regional_lats[i]
+                best_lon = regional_lons[j]
+
+        # Select the valid point
+        da = ds[var_name].sel(lat=best_lat, lon=best_lon)
+        print(f"  Found valid point at: ({best_lat:.2f}, {best_lon:.2f})")
+    else:
+        # Get actual coordinates
+        actual_lat = float(da["lat"].values)
+        actual_lon = float(da["lon"].values)
+        print(f"  Nearest grid point: ({actual_lat:.2f}, {actual_lon:.2f})")
 
     return da
 
