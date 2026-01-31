@@ -12,8 +12,8 @@ Precipitation extremes are a key concern for water resource management, flood
 risk assessment, and infrastructure design. Changes in precipitation intensity
 under climate change may alter the frequency and magnitude of extreme events.
 
-This example uses 55+ years of daily precipitation observations from New
-Brunswick, NJ to:
+This example uses 54 years of daily precipitation observations from New
+Brunswick, NJ (1969-2023) to:
 
 - Fit a stationary GEV distribution to annual maximum precipitation
 - Test for significant trends using the likelihood ratio test
@@ -24,7 +24,7 @@ Data Source
 
 **Station:** GHCND:USC00286055 (New Brunswick 3 SE, NJ)
 
-**Period:** 1968-2023 (approximately 55 years)
+**Period:** 1969-2023 (54 years)
 
 **Variables:** Daily precipitation (PRCP) in inches, temperature (TMAX, TMIN) in °F
 
@@ -94,15 +94,18 @@ Fit a stationary GEV distribution:
    print(f"  Scale (σ):    {params['scale']:.2f} inches")
    print(f"  Shape (ξ):    {params['shape']:.3f}")
 
-For this station, the fitted parameters are approximately:
+For this station, the fitted parameters are:
 
-- **Location (μ):** ~2.6 inches - typical annual maximum
-- **Scale (σ):** ~0.75 inches - spread of extremes
-- **Shape (ξ):** +0.35 - Fréchet type (heavy tail)
+- **Location (μ):** 2.65 inches - the typical magnitude of annual maximum precipitation
+- **Scale (σ):** 0.78 inches - characterizes the spread of extreme values
+- **Shape (ξ):** +0.350 - Fréchet type (heavy tail, unbounded)
 
-The positive shape parameter indicates heavy upper tails where very large
-precipitation events are possible but rare. This is typical for precipitation
-in the northeastern United States.
+The positive shape parameter (ξ > 0) indicates a heavy upper tail, meaning very
+large precipitation events are possible but rare. This Fréchet-type behavior is
+characteristic of convective precipitation in the northeastern United States,
+where tropical systems and intense thunderstorms can produce exceptional rainfall
+totals. The heavy tail implies that extrapolating to long return periods carries
+significant uncertainty.
 
 Diagnostic Plots
 ----------------
@@ -144,19 +147,24 @@ The likelihood ratio test compares:
 
 For this dataset, the test yields:
 
-- **p-value:** ~0.41 (not significant at α=0.05)
+- **Test statistic (D):** 0.795
+- **p-value:** 0.37 (not significant at α=0.05)
+- **AIC (stationary):** 171.5
+- **AIC (non-stationary):** 172.7
 - **Preferred model:** Stationary
 
 This indicates **no statistically significant trend** in precipitation extremes
-at this station over the 55-year record. The stationary GEV model is appropriate.
+at this station over the 54-year record. Both the likelihood ratio test (p > 0.05)
+and the AIC criterion favor the stationary model, suggesting that a simple
+time-invariant GEV distribution adequately describes the data.
 
 .. figure:: /_static/newbrunswick_trend_test.png
    :width: 600px
    :align: center
    :alt: Trend test results
 
-   Model comparison showing AIC values. The stationary model (blue) is preferred
-   based on both the likelihood ratio test (p=0.41) and AIC.
+   Model comparison showing AIC values. The stationary model is preferred
+   based on both the likelihood ratio test (p=0.37) and AIC (lower is better).
 
 Return Levels
 -------------
@@ -174,9 +182,9 @@ Results for New Brunswick:
 ==============  ======================
 Return Period   Return Level (inches)
 ==============  ======================
-10-year         ~5.2
-50-year         ~9.0
-100-year        ~11.3
+10-year         5.32
+50-year         9.16
+100-year        11.58
 ==============  ======================
 
 These values can be used for:
@@ -233,21 +241,28 @@ This example demonstrated:
 
 4. **Return levels**: Calculating design values for infrastructure planning
 
-Key findings for New Brunswick, NJ precipitation:
+Key findings for New Brunswick, NJ precipitation (1969-2023):
 
-- **Shape parameter:** +0.35 (Fréchet type with heavy upper tail)
-- **Trend:** Not statistically significant (p=0.41)
-- **100-year return level:** ~11.3 inches
+- **Location (μ):** 2.65 inches - typical annual maximum daily precipitation
+- **Scale (σ):** 0.78 inches - variability of extremes
+- **Shape (ξ):** +0.350 (Fréchet type with heavy upper tail)
+- **Trend:** Not statistically significant (p=0.37)
+- **100-year return level:** 11.58 inches
 
-The absence of a significant trend in this 55-year record does not mean climate
+The 100-year return level of nearly 12 inches represents an extreme event that
+would exceed most stormwater infrastructure design standards. For context, a
+typical 24-hour design storm for this region is often based on 5-6 inches.
+
+The absence of a significant trend in this 54-year record does not mean climate
 change is not affecting precipitation. The signal may be:
 
-- Too small to detect with available data
-- Obscured by natural variability
-- Manifesting in other metrics (frequency, seasonality)
+- Too small to detect with available data (54 years may be insufficient)
+- Obscured by natural decadal variability (e.g., Atlantic Multidecadal Oscillation)
+- Manifesting in other metrics (event frequency, seasonal timing, spatial extent)
 
-Longer records or regional analyses may reveal trends not detectable at a
-single station.
+Regional analyses pooling multiple stations, or longer records where available,
+may reveal trends not detectable at a single station. The :doc:`atlantic_city_sealevel`
+example demonstrates a case where a 110+ year record does show significant trends.
 
 See Also
 --------

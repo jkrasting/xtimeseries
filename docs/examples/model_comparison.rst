@@ -32,9 +32,11 @@ Data Sources
 - Daily precipitation (pr variable, converted to inches/day)
 - Nearest grid point to New Brunswick, NJ
 
-**Overlapping Period:** 1950-2014
+**Overlapping Period:** 1969-2014
 
-Using a common time period ensures fair comparison across datasets.
+Using a common time period ensures fair comparison across datasets. Since the
+NOAA observations begin in 1969 and the CMIP6 historical experiment ends in 2014,
+this 46-year overlap provides the basis for comparison.
 
 To obtain the data:
 
@@ -94,8 +96,9 @@ Load observations and model data, converting to inches/day:
    :align: center
    :alt: Time series comparison
 
-   Annual maximum precipitation from observations and climate models
-   over the common analysis period.
+   Annual maximum precipitation from observations (black) and climate models
+   (GFDL-CM4 in blue, CESM2 in orange) over the 1969-2014 analysis period.
+   Note the higher interannual variability in the observations compared to models.
 
 Fitting GEV Distributions
 -------------------------
@@ -130,8 +133,9 @@ Compare GEV parameters across datasets:
    :align: center
    :alt: Parameter comparison
 
-   Comparison of GEV parameters (location, scale, shape) between
-   observations and climate models.
+   Comparison of GEV parameters between observations and climate models.
+   Both models underestimate the location (typical extreme magnitude), scale
+   (variability), and shape (tail heaviness) parameters relative to observations.
 
 Key aspects to evaluate:
 
@@ -174,8 +178,10 @@ Compare return level curves:
    :align: center
    :alt: Return level comparison
 
-   Return level curves for observations and climate models. Divergence
-   at high return periods reflects differences in tail behavior.
+   Return level curves for observations and climate models. The observations
+   (black) show substantially higher return levels than both models, with the
+   divergence increasing at longer return periods due to different tail behavior.
+   The scatter points show empirical return periods from the data.
 
 Trend Detection
 ---------------
@@ -200,8 +206,10 @@ Compare trend magnitudes where significant:
    :align: center
    :alt: Trend comparison
 
-   Precipitation trends (units per decade) for observations and models.
-   Asterisks indicate statistically significant trends.
+   Precipitation trends (inches per decade) for observations and models.
+   None of the datasets show statistically significant trends over this period,
+   as indicated by the absence of asterisks. This is consistent with the relatively
+   short 46-year analysis period.
 
 Q-Q Plot Comparison
 -------------------
@@ -272,30 +280,84 @@ Interpretation Guidelines
    If observations show a significant trend but models don't (or vice versa),
    this indicates disagreement about how extremes are changing.
 
+Results
+-------
+
+The analysis reveals systematic biases in how climate models represent
+precipitation extremes at this location:
+
+**Fitted GEV Parameters:**
+
+===============  ==========  ==========  ==========
+Dataset          Location    Scale       Shape
+===============  ==========  ==========  ==========
+Observations     2.63        0.78        +0.360
+GFDL-CM4         2.16        0.45        +0.170
+CESM2            2.06        0.40        +0.081
+===============  ==========  ==========  ==========
+
+**Model Skill Assessment:**
+
+===============  ==============  ==============  ===============
+Model            Location Bias   Scale Bias      100-yr RL Bias
+===============  ==============  ==============  ===============
+GFDL-CM4         -0.47 (-18%)    -0.33 (-43%)    -6.49 (-55%)
+CESM2            -0.57 (-22%)    -0.38 (-48%)    -7.47 (-64%)
+===============  ==============  ==============  ===============
+
+Both models substantially underestimate precipitation extremes:
+
+- **Location bias:** Models produce typical annual maxima 18-22% lower than observed
+- **Scale bias:** Models show 43-48% less variability in extremes
+- **Shape bias:** Models have much lighter tails (ξ ≈ 0.08-0.17 vs observed 0.36)
+- **100-year return level:** Models underestimate by 55-64%
+
+The lighter tails in the models mean they fail to capture the most extreme events.
+This is a known issue with coarse-resolution climate models, which cannot resolve
+convective processes that produce the most intense precipitation.
+
+**Trend Detection:**
+
+===============  ==========  =============  ==============
+Dataset          p-value     Significant    Preferred
+===============  ==========  =============  ==============
+Observations     0.34        No             Stationary
+GFDL-CM4         0.73        No             Stationary
+CESM2            0.84        No             Stationary
+===============  ==========  =============  ==============
+
+None of the datasets show significant trends in precipitation extremes over
+the 1969-2014 period. This consistency suggests that both observations and
+models agree that trends in annual maximum precipitation are not detectable
+at this single location over this time period.
+
 Summary
 -------
 
 This example demonstrated:
 
-1. **Data alignment**: Using a common time period for fair comparison
+1. **Data alignment**: Using the common 1969-2014 period for fair comparison
 
-2. **Parameter comparison**: Comparing GEV location, scale, and shape
-   parameters between observations and models
+2. **Parameter comparison**: Both CMIP6 models underestimate all three GEV
+   parameters, with particularly severe underestimation of the shape parameter
 
-3. **Return level analysis**: Comparing return level curves to assess
-   model performance across different recurrence intervals
+3. **Return level analysis**: Model biases amplify at longer return periods
+   due to differences in tail behavior, reaching 55-64% underestimation of
+   the 100-year event
 
-4. **Trend comparison**: Testing whether observations and models agree
-   on the presence and magnitude of trends
+4. **Trend comparison**: All datasets agree on the absence of significant
+   trends in this period
 
-5. **Skill metrics**: Quantifying model biases in key statistics
+5. **Implications**: Climate model projections of future precipitation extremes
+   may be significantly biased low at local scales
 
 Key considerations for model evaluation:
 
 - Use overlapping periods for fair comparison
 - Compare both typical extremes (location) and tail behavior (shape)
 - Consider whether biases are consistent across return periods
-- Evaluate trend agreement, not just mean climatology
+- Recognize that point-to-grid comparisons are inherently limited by scale mismatch
+- Use bias correction methods when applying model projections to local impact studies
 
 See Also
 --------
