@@ -7857,6 +7857,18 @@ a.anchor-link {
 </tbody>
 </table>
 <p><strong>Extreme Value Analysis (EVA)</strong> provides the statistical framework to answer these questions rigorously.</p>
+<h3 id="Why-Traditional-Statistics-Fall-Short">Why Traditional Statistics Fall Short<a class="anchor-link" href="#Why-Traditional-Statistics-Fall-Short">¶</a></h3><p>Most statistical methods focus on central tendency: means, medians, and standard deviations. These tools describe the "typical" behavior of a system. A weather forecaster might tell you that average July rainfall in New Brunswick, New Jersey is about 4.5 inches, or that temperatures typically range from 70 to 85 degrees Fahrenheit. These statistics help us understand normal conditions.</p>
+<p>But normal conditions are not what cause bridges to fail, levees to overtop, or buildings to collapse. It is the <em>extremes</em>---the once-in-a-generation storms, the unprecedented heat waves, the catastrophic floods---that drive design requirements. The problem is that averages tell us almost nothing about extremes. A distribution's mean and standard deviation do not uniquely determine how heavy its tails are. Two locations might have identical average annual precipitation yet vastly different 100-year rainfall totals, depending on the shape of their underlying distributions.</p>
+<p>Consider a concrete example: if daily precipitation follows a light-tailed distribution (like the exponential), the 100-year daily rainfall might be only 3 times the average annual maximum. But if precipitation follows a heavy-tailed distribution (as it often does for convective storms), the 100-year event could be 5 or even 10 times the typical maximum. Traditional statistics cannot distinguish these cases without specialized tools.</p>
+<h3 id="The-Fundamental-Challenge:-Estimating-the-Rare-from-the-Common">The Fundamental Challenge: Estimating the Rare from the Common<a class="anchor-link" href="#The-Fundamental-Challenge:-Estimating-the-Rare-from-the-Common">¶</a></h3><p>Extreme value analysis confronts a fundamental paradox: we need to estimate the magnitude of events that, by definition, we have rarely or never observed. How can we predict a 500-year flood if we have only 50 years of data? This seems impossible---yet EVA provides a principled solution.</p>
+<p>The key insight is that even though we have not observed the most extreme events, we <em>have</em> observed many moderately extreme events. The mathematical theory of extremes reveals that the behavior of these moderate extremes contains information about the truly rare events. Just as the Central Limit Theorem tells us that sums converge to a Normal distribution regardless of the underlying data, the Fisher-Tippett-Gnedenko theorem (which we will explore in Section 2) tells us that maxima converge to a specific family of distributions. This convergence allows us to extrapolate beyond our observed data in a mathematically justified way.</p>
+<p>Of course, extrapolation always carries uncertainty, and that uncertainty grows as we push further beyond our observations. A 100-year estimate from 50 years of data is far less certain than a 10-year estimate. Quantifying this uncertainty is a central concern of EVA, and we will see how bootstrap methods and confidence intervals help us communicate the reliability of our estimates.</p>
+<h3 id="The-Stakes:-Why-Getting-It-Right-Matters">The Stakes: Why Getting It Right Matters<a class="anchor-link" href="#The-Stakes:-Why-Getting-It-Right-Matters">¶</a></h3><p>The consequences of underestimating extremes can be catastrophic. Hurricane Katrina's storm surge exceeded the design specifications of New Orleans' levee system, contributing to over 1,800 deaths and $125 billion in damages. The 2011 Tohoku earthquake and tsunami exceeded Japan's coastal defense designs, leading to the Fukushima nuclear disaster. In each case, infrastructure designed for a certain level of protection proved inadequate when nature exceeded expectations.</p>
+<p>Conversely, overestimating extremes carries economic costs. Building a dam twice as high as necessary, or requiring wind ratings that will never be tested, wastes resources that could be deployed elsewhere. Engineers and planners must balance safety against cost, and EVA provides the quantitative foundation for making these tradeoffs rationally.</p>
+<p>Beyond infrastructure, EVA informs insurance pricing, emergency preparedness, and climate change adaptation. As our climate shifts, historical extremes may no longer predict future risks. Non-stationary extreme value analysis (covered in Section 8) extends the framework to handle changing conditions---a capability that becomes ever more important as climate change intensifies.</p>
+<blockquote>
+<p><strong>Key Takeaway:</strong> Extreme value analysis provides the mathematical tools to estimate rare events from limited data, quantify uncertainty in those estimates, and make informed decisions about risk. The remainder of this tutorial develops these tools through theory and hands-on examples.</p>
+</blockquote>
 </div>
 </div>
 </div>
@@ -7867,7 +7879,7 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="What-is-a-%22100-Year-Event%22?">What is a "100-Year Event"?<a class="anchor-link" href="#What-is-a-%22100-Year-Event%22?">¶</a></h3><p>You've likely heard phrases like "100-year flood" on the news. This is often misunderstood.</p>
+<h3 id="What-is-a-%22100-Year-Event%22?">What is a "100-Year Event"?<a class="anchor-link" href="#What-is-a-%22100-Year-Event%22?">¶</a></h3><p>You've likely heard phrases like "100-year flood" on the news. This terminology is widely used but frequently misunderstood, even by professionals. Let's clarify what it actually means.</p>
 <blockquote>
 <p><strong>A 100-year event does NOT mean it happens once every 100 years.</strong></p>
 </blockquote>
@@ -7877,7 +7889,9 @@ a.anchor-link {
 <li>Over 100 years, there's about a <strong>63%</strong> chance of seeing at least one such event</li>
 <li>You could see two 100-year floods in back-to-back years (unlikely, but possible)</li>
 </ul>
-<p>The correct interpretation is <strong>return period</strong>: the average time between events of a given magnitude.</p>
+<p>The correct interpretation is <strong>return period</strong>: the average time between events of a given magnitude. A 100-year return period means that, on average, we expect one exceedance per century. But "on average" is doing a lot of work in that sentence. Just as a fair coin might land heads three times in a row despite 50% odds, nature can deliver "100-year" events in rapid succession or withhold them for centuries.</p>
+<p>The confusion arises because human intuition struggles with rare probabilities. We tend to think of a 100-year event as a singular occurrence that "uses up" the bad luck for a century. But each year is statistically independent. The river does not remember last year's flood; the atmosphere does not owe us calm after a hurricane. Understanding this distinction is essential for proper risk communication and decision-making.</p>
+<p>We will formalize these concepts mathematically in Section 5, including the formula for calculating the probability of experiencing at least one T-year event over any given time horizon.</p>
 </div>
 </div>
 </div>
@@ -8029,10 +8043,10 @@ Storm surge data: 38,763 daily records
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <hr/>
-<h2 id="2.-The-Fisher-Tippett-Gnedenko-Theorem">2. The Fisher-Tippett-Gnedenko Theorem<a class="anchor-link" href="#2.-The-Fisher-Tippett-Gnedenko-Theorem">¶</a></h2><h3 id="From-Central-Limit-Theorem-to-Extreme-Value-Theory">From Central Limit Theorem to Extreme Value Theory<a class="anchor-link" href="#From-Central-Limit-Theorem-to-Extreme-Value-Theory">¶</a></h3><p>You're likely familiar with the <strong>Central Limit Theorem (CLT)</strong>: the sum (or mean) of many independent random variables converges to a Normal distribution, regardless of the original distribution.</p>
-<p>Extreme Value Theory has an analogous result: the <strong>Fisher-Tippett-Gnedenko Theorem</strong> (1928, 1943).</p>
+<h2 id="2.-The-Fisher-Tippett-Gnedenko-Theorem">2. The Fisher-Tippett-Gnedenko Theorem<a class="anchor-link" href="#2.-The-Fisher-Tippett-Gnedenko-Theorem">¶</a></h2><h3 id="From-Central-Limit-Theorem-to-Extreme-Value-Theory">From Central Limit Theorem to Extreme Value Theory<a class="anchor-link" href="#From-Central-Limit-Theorem-to-Extreme-Value-Theory">¶</a></h3><p>You're likely familiar with the <strong>Central Limit Theorem (CLT)</strong>: the sum (or mean) of many independent random variables converges to a Normal distribution, regardless of the original distribution. This remarkable result explains why the Normal distribution appears so frequently in nature and statistics---whenever we observe the aggregate of many small, independent effects, we expect approximate normality.</p>
+<p>Extreme Value Theory has an analogous result: the <strong>Fisher-Tippett-Gnedenko Theorem</strong> (developed by Ronald Fisher and Leonard Tippett in 1928, with rigorous proof by Boris Gnedenko in 1943).</p>
 <blockquote>
-<p><strong>Theorem:</strong> If the maximum of $n$ independent, identically distributed random variables, properly normalized, converges in distribution, it must converge to one of only three possible families:</p>
+<p><strong>Theorem:</strong> If the maximum of $n$ independent, identically distributed random variables, properly normalized, converges in distribution as $n \to \infty$, it must converge to one of only three possible families:</p>
 <ul>
 <li><strong>Gumbel</strong> (Type I)</li>
 <li><strong>Fréchet</strong> (Type II)</li>
@@ -8040,6 +8054,54 @@ Storm surge data: 38,763 daily records
 </ul>
 </blockquote>
 <p>These three families can be unified into a single parametric form: the <strong>Generalized Extreme Value (GEV) distribution</strong>.</p>
+<h3 id="Why-This-Theorem-is-Remarkable">Why This Theorem is Remarkable<a class="anchor-link" href="#Why-This-Theorem-is-Remarkable">¶</a></h3><p>The Fisher-Tippett-Gnedenko theorem is extraordinary for the same reason the CLT is extraordinary: it tells us that the <em>details</em> of the underlying distribution do not matter for the limiting behavior. Whether we are measuring daily rainfall (which might follow a gamma distribution), stock returns (which might be heavy-tailed), or temperature readings (which might be approximately normal), the maximum values will follow the same family of distributions.</p>
+<p>This universality is what makes EVA so powerful. We do not need to know---or even estimate---the exact distribution of our raw data. We only need to fit the GEV to the observed maxima. The theorem guarantees that this approach is asymptotically correct, regardless of the parent distribution.</p>
+<p>However, there is an important caveat: the theorem requires "proper normalization." Without centering and scaling, the maximum of $n$ observations simply grows without bound as $n$ increases. The normalization constants ensure that the distribution stabilizes to a non-degenerate limit. In practice, the fitting procedure implicitly handles this normalization through the location and scale parameters.</p>
+<h3 id="Domains-of-Attraction">Domains of Attraction<a class="anchor-link" href="#Domains-of-Attraction">¶</a></h3><p>Not all parent distributions lead to the same type of extreme value distribution. The <strong>domain of attraction</strong> concept tells us which parent distributions produce which GEV type:</p>
+<table>
+<thead>
+<tr>
+<th>Parent Distribution Family</th>
+<th>Domain of Attraction</th>
+<th>GEV Type</th>
+<th>Shape ($\xi$)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Exponential, Normal, Gamma, Lognormal</td>
+<td>Gumbel</td>
+<td>Type I</td>
+<td>$\xi = 0$</td>
+</tr>
+<tr>
+<td>Pareto, Cauchy, Student-t, Burr</td>
+<td>Fréchet</td>
+<td>Type II</td>
+<td>$\xi &gt; 0$</td>
+</tr>
+<tr>
+<td>Uniform, Beta, Bounded distributions</td>
+<td>Weibull</td>
+<td>Type III</td>
+<td>$\xi &lt; 0$</td>
+</tr>
+</tbody>
+</table>
+<p>The Fréchet domain contains distributions with polynomial (power-law) tail decay---these are the "heavy-tailed" distributions where extreme events can be dramatically larger than typical values. The Gumbel domain contains distributions with exponential tail decay. The Weibull domain contains distributions with finite upper endpoints.</p>
+<p>For most environmental variables, we do not know <em>a priori</em> which domain applies. This is why we estimate the shape parameter $\xi$ from data rather than assuming it. The estimated $\xi$ tells us empirically about the tail behavior of our variable.</p>
+<h3 id="Practical-Implications">Practical Implications<a class="anchor-link" href="#Practical-Implications">¶</a></h3><p>The Fisher-Tippett-Gnedenko theorem has profound practical implications:</p>
+<ol>
+<li><p><strong>Model justification:</strong> When we fit a GEV to annual maxima, we are not making an arbitrary distributional choice. We are using the mathematically correct limiting distribution for maxima.</p>
+</li>
+<li><p><strong>Robustness:</strong> Our GEV fits do not depend on correctly specifying the parent distribution. This robustness is essential because we rarely know the true distribution of daily weather variables.</p>
+</li>
+<li><p><strong>Extrapolation:</strong> The theorem provides theoretical justification for extrapolating beyond our observed data. If the GEV is the correct limit distribution, then return levels computed from the fitted GEV have a sound mathematical basis.</p>
+</li>
+<li><p><strong>Shape interpretation:</strong> The estimated shape parameter $\xi$ tells us something fundamental about the physical system we are studying: whether extremes are bounded, light-tailed, or heavy-tailed.</p>
+</li>
+</ol>
+<p>The visualization below demonstrates this convergence empirically. We draw samples from four very different distributions (Exponential, Normal, Uniform, and Gamma), compute block maxima, and show that all four converge to GEV distributions.</p>
 </div>
 </div>
 </div>
@@ -8050,7 +8112,7 @@ Storm surge data: 38,763 daily records
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="Visual-Demonstration:-Maxima-Converge-to-GEV">Visual Demonstration: Maxima Converge to GEV<a class="anchor-link" href="#Visual-Demonstration:-Maxima-Converge-to-GEV">¶</a></h3><p>Let's demonstrate this remarkable theorem. We'll take samples from several very different distributions, compute their block maxima, and show that they all converge to the same GEV family.</p>
+<h3 id="Visual-Demonstration:-Maxima-Converge-to-GEV">Visual Demonstration: Maxima Converge to GEV<a class="anchor-link" href="#Visual-Demonstration:-Maxima-Converge-to-GEV">¶</a></h3><p>Let's demonstrate this remarkable theorem empirically. We generate samples from four very different parent distributions---Exponential (memoryless, used for waiting times), Normal (the familiar bell curve), Uniform (flat, bounded), and Gamma (skewed, positive)---and extract the maximum from each block of 100 observations. Despite the parent distributions having vastly different shapes, the resulting block maxima all follow GEV distributions. The shape parameter $\xi$ varies (reflecting the different tail behaviors of the parents), but the GEV framework captures all four cases.</p>
 </div>
 </div>
 </div>
@@ -8139,7 +8201,7 @@ Storm surge data: 38,763 daily records
 <tr>
 <th>Type</th>
 <th>Name</th>
-<th>Shape (ξ)</th>
+<th>Shape ($\xi$)</th>
 <th>Upper Tail</th>
 <th>Physical Example</th>
 </tr>
@@ -8148,32 +8210,36 @@ Storm surge data: 38,763 daily records
 <tr>
 <td>I</td>
 <td><strong>Gumbel</strong></td>
-<td>ξ = 0</td>
+<td>$\xi = 0$</td>
 <td>Light (exponential)</td>
 <td>Temperature maxima, wind speeds</td>
 </tr>
 <tr>
 <td>II</td>
 <td><strong>Fréchet</strong></td>
-<td>ξ &gt; 0</td>
+<td>$\xi &gt; 0$</td>
 <td>Heavy (unbounded)</td>
 <td>Precipitation, financial losses</td>
 </tr>
 <tr>
 <td>III</td>
 <td><strong>Weibull</strong></td>
-<td>ξ &lt; 0</td>
+<td>$\xi &lt; 0$</td>
 <td>Bounded</td>
 <td>Stream flow, some temperatures</td>
 </tr>
 </tbody>
 </table>
-<p>The shape parameter tells us about the <strong>tail behavior</strong>:</p>
+<p>The shape parameter is the most important quantity in extreme value analysis because it determines the <strong>tail behavior</strong>---how likely are the truly extreme events relative to the moderately extreme events:</p>
 <ul>
-<li><strong>ξ &gt; 0 (Fréchet):</strong> The distribution has a heavy tail. Extremely large values are more likely than for Normal or Exponential distributions. There's no upper bound.</li>
-<li><strong>ξ = 0 (Gumbel):</strong> The tail decays exponentially, similar to the Exponential distribution.</li>
-<li><strong>ξ &lt; 0 (Weibull):</strong> The distribution has a finite upper endpoint. Extreme values are bounded.</li>
+<li><p><strong>$\xi &gt; 0$ (Fréchet):</strong> The distribution has a heavy tail. Extremely large values are more likely than for Normal or Exponential distributions. There is no theoretical upper bound, meaning arbitrarily large events are possible (though increasingly unlikely). This behavior is common for precipitation, where convective storms can produce rainfall amounts many times the typical maximum.</p>
+</li>
+<li><p><strong>$\xi = 0$ (Gumbel):</strong> The tail decays exponentially, similar to the Exponential distribution. Events far beyond the typical maximum are possible but become increasingly improbable at a steady exponential rate. Many temperature and wind speed records fall into this category.</p>
+</li>
+<li><p><strong>$\xi &lt; 0$ (Weibull):</strong> The distribution has a finite upper endpoint at $\mu - \sigma/\xi$. No event can exceed this bound. This might seem unrealistic---can anything truly have a hard upper limit?---but it captures situations where physical constraints cap the maximum (e.g., a reservoir has a maximum storage capacity, or storm intensity is limited by available atmospheric energy).</p>
+</li>
 </ul>
+<p>The figure below illustrates how the shape parameter affects both the probability density function (PDF) and the survival probability in the upper tail. Notice how the Fréchet distribution (red, $\xi &gt; 0$) maintains higher probability at extreme values compared to the Gumbel (blue) and Weibull (green).</p>
 </div>
 </div>
 </div>
@@ -8259,17 +8325,29 @@ Storm surge data: 38,763 daily records
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <hr/>
-<h2 id="3.-The-GEV-Distribution">3. The GEV Distribution<a class="anchor-link" href="#3.-The-GEV-Distribution">¶</a></h2><h3 id="Mathematical-Definition">Mathematical Definition<a class="anchor-link" href="#Mathematical-Definition">¶</a></h3><p>The <strong>Generalized Extreme Value (GEV)</strong> distribution has CDF:</p>
+<h2 id="3.-The-GEV-Distribution">3. The GEV Distribution<a class="anchor-link" href="#3.-The-GEV-Distribution">¶</a></h2><h3 id="Mathematical-Definition">Mathematical Definition<a class="anchor-link" href="#Mathematical-Definition">¶</a></h3><p>The <strong>Generalized Extreme Value (GEV)</strong> distribution arises naturally as the limiting distribution for block maxima, as established by the Fisher-Tippett-Gnedenko theorem. It is not an arbitrary choice but rather the mathematically correct model for extreme values. The cumulative distribution function (CDF) is:</p>
 <p>$$G(x) = \exp\left\{-\left[1 + \xi\left(\frac{x-\mu}{\sigma}\right)\right]^{-1/\xi}\right\}$$</p>
 <p>for $\xi \neq 0$, defined where $1 + \xi(x-\mu)/\sigma &gt; 0$.</p>
-<p>For $\xi = 0$ (Gumbel case):</p>
+<p>For $\xi = 0$ (Gumbel case), we take the limit as $\xi \to 0$:</p>
 <p>$$G(x) = \exp\left\{-\exp\left[-\frac{x-\mu}{\sigma}\right]\right\}$$</p>
+<p>This formula gives the probability that the block maximum is less than or equal to $x$. The expression inside the outermost exponential is always negative (since we're raising something positive to a negative power for $\xi &gt; 0$, or negating a positive quantity for $\xi = 0$), ensuring that $G(x)$ is between 0 and 1 as required for a valid CDF.</p>
 <p><strong>Parameters:</strong></p>
 <ul>
 <li>$\mu$ (mu): <strong>Location</strong> — shifts the distribution left/right. Similar to mean.</li>
 <li>$\sigma$ (sigma): <strong>Scale</strong> — stretches/compresses. Must be positive. Similar to standard deviation.</li>
 <li>$\xi$ (xi): <strong>Shape</strong> — controls tail behavior. This is the key EVA parameter.</li>
 </ul>
+<h3 id="Understanding-the-Parameters:-Physical-and-Statistical-Intuition">Understanding the Parameters: Physical and Statistical Intuition<a class="anchor-link" href="#Understanding-the-Parameters:-Physical-and-Statistical-Intuition">¶</a></h3><p>Each GEV parameter has both a statistical interpretation (what it does to the distribution mathematically) and a physical interpretation (what it means for the phenomenon being studied).</p>
+<p><strong>Location ($\mu$):</strong> The location parameter shifts the entire distribution along the x-axis. Statistically, it is similar to---but not exactly---the mean. For the Gumbel distribution ($\xi = 0$), the mode (most likely value) equals $\mu$, and the mean is $\mu + \gamma \sigma$ where $\gamma \approx 0.5772$ is the Euler-Mascheroni constant. Physically, $\mu$ represents the "typical" extreme value. If $\mu = 3$ inches for annual maximum daily precipitation, then 3 inches is approximately the central tendency of the annual maxima. A location of 5 inches would indicate a wetter climate with larger typical extremes.</p>
+<p><strong>Scale ($\sigma$):</strong> The scale parameter controls the spread or variability of the extreme values. Statistically, it functions like a standard deviation, stretching the distribution horizontally when large and compressing it when small. Physically, it represents year-to-year variability in the annual maxima. A large scale parameter means that some years have much larger maxima than others; a small scale means the annual maximum is relatively consistent across years. For infrastructure design, high variability (large $\sigma$) means greater uncertainty in return level estimates.</p>
+<p><strong>Shape ($\xi$):</strong> The shape parameter is the most consequential because it determines the tail behavior---how the probability of extreme events changes as we move further into the tail. This parameter distinguishes among the three GEV types:</p>
+<ul>
+<li><p>For <strong>precipitation</strong>, we often find $\xi &gt; 0$ (Fréchet type). This reflects the physics of convective storms: atmospheric instability can occasionally produce exceptional rainfall amounts far exceeding typical values. There is no physical upper bound on how intense a storm can be, though probabilities decrease for larger amounts.</p>
+</li>
+<li><p>For <strong>storm surge</strong>, we might find $\xi &lt; 0$ (Weibull type) or $\xi \approx 0$ (Gumbel type). Storm surge depends on storm intensity, track, and timing with tides. Physical constraints (maximum possible storm intensity, basin geometry) may limit the maximum possible surge, suggesting bounded behavior.</p>
+</li>
+</ul>
+<p>The sign and magnitude of $\xi$ have direct implications for extrapolation: with $\xi &gt; 0$, return levels grow rapidly with return period; with $\xi &lt; 0$, they approach an asymptote; with $\xi = 0$, they grow logarithmically.</p>
 </div>
 </div>
 </div>
@@ -8280,7 +8358,7 @@ Storm surge data: 38,763 daily records
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="Understanding-the-Parameters-Visually">Understanding the Parameters Visually<a class="anchor-link" href="#Understanding-the-Parameters-Visually">¶</a></h3>
+<h3 id="Understanding-the-Parameters-Visually">Understanding the Parameters Visually<a class="anchor-link" href="#Understanding-the-Parameters-Visually">¶</a></h3><p>The figures below demonstrate how each parameter affects the GEV distribution. Understanding these effects helps build intuition for interpreting fitted parameters and diagnosing potential issues with model fits.</p>
 </div>
 </div>
 </div>
@@ -8356,7 +8434,7 @@ Storm surge data: 38,763 daily records
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="%E2%9A%A0%EF%B8%8F-Critical-Warning:-scipy-Sign-Convention">⚠️ Critical Warning: scipy Sign Convention<a class="anchor-link" href="#%E2%9A%A0%EF%B8%8F-Critical-Warning:-scipy-Sign-Convention">¶</a></h3><p>The <code>scipy.stats.genextreme</code> module uses a <strong>different sign convention</strong> for the shape parameter!</p>
+<h3 id="A-Note-on-Sign-Conventions:-scipy-vs.-Climate-Standard">A Note on Sign Conventions: scipy vs. Climate Standard<a class="anchor-link" href="#A-Note-on-Sign-Conventions:-scipy-vs.-Climate-Standard">¶</a></h3><p>When working with extreme value distributions in Python, you will encounter a critical difference in sign conventions that has confused many practitioners. The <code>scipy.stats.genextreme</code> module uses a <strong>different sign convention</strong> for the shape parameter than the standard used in climate science and most EVA textbooks.</p>
 <table>
 <thead>
 <tr>
@@ -8368,20 +8446,21 @@ Storm surge data: 38,763 daily records
 <tbody>
 <tr>
 <td><strong>Climate/Standard</strong></td>
-<td>ξ</td>
-<td>ξ &gt; 0</td>
+<td>$\xi$</td>
+<td>$\xi &gt; 0$</td>
 </tr>
 <tr>
 <td><strong>scipy</strong></td>
-<td>c</td>
-<td>c &lt; 0</td>
+<td>$c$</td>
+<td>$c &lt; 0$</td>
 </tr>
 </tbody>
 </table>
 <p>The relationship is:</p>
-<p>$$c_{scipy} = -\xi_{climate}$$</p>
-<p><strong>The <code>xtimeseries</code> package handles this conversion automatically.</strong> When using <code>xts.fit_gev()</code>, you get the standard climate convention (ξ &gt; 0 means heavy tail).</p>
-<p>If you use scipy directly, remember to negate:</p>
+<p>$$c_{\text{scipy}} = -\xi_{\text{climate}}$$</p>
+<p>This means that when scipy reports a negative shape parameter, the distribution actually has a heavy (Fréchet-type) tail in the climate convention. This discrepancy arises from different historical traditions in statistics versus applied fields.</p>
+<p><strong>The <code>xtimeseries</code> package handles this conversion automatically.</strong> When using <code>xts.fit_gev()</code>, you get the standard climate convention ($\xi &gt; 0$ means heavy tail). If you use scipy directly for any reason, remember to negate the shape parameter.</p>
+<p>The code cell below demonstrates this difference explicitly:</p>
 </div>
 </div>
 </div>
@@ -8443,10 +8522,19 @@ xts.fit_gev():
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="Maximum-Likelihood-Estimation">Maximum Likelihood Estimation<a class="anchor-link" href="#Maximum-Likelihood-Estimation">¶</a></h3><p>GEV parameters are typically estimated using <strong>Maximum Likelihood Estimation (MLE)</strong>. Given observations $x_1, x_2, \ldots, x_n$, MLE finds parameters that maximize the likelihood:</p>
+<h3 id="Maximum-Likelihood-Estimation">Maximum Likelihood Estimation<a class="anchor-link" href="#Maximum-Likelihood-Estimation">¶</a></h3><p>GEV parameters are estimated using <strong>Maximum Likelihood Estimation (MLE)</strong>, a fundamental statistical technique. The core idea is intuitive: among all possible parameter values, find the ones that make our observed data most probable.</p>
+<p>Given observations $x_1, x_2, \ldots, x_n$ (annual maxima), the <strong>likelihood function</strong> is the probability of observing exactly this dataset, viewed as a function of the parameters:</p>
 <p>$$L(\mu, \sigma, \xi) = \prod_{i=1}^n g(x_i; \mu, \sigma, \xi)$$</p>
-<p>where $g$ is the GEV probability density function.</p>
-<p>In practice, we maximize the <strong>log-likelihood</strong> (equivalent, but numerically more stable).</p>
+<p>where $g$ is the GEV probability density function. If the parameters are "correct," our observed data should be probable; if they are wrong, our data should be improbable. MLE finds the parameters that maximize this probability.</p>
+<p>In practice, we work with the <strong>log-likelihood</strong> $\ell = \log L$, which converts the product into a sum and is numerically more stable. Maximizing the log-likelihood is equivalent to maximizing the likelihood itself (since $\log$ is monotonically increasing).</p>
+<p><strong>Why MLE?</strong> Maximum likelihood estimators have several desirable properties:</p>
+<ul>
+<li><strong>Consistency:</strong> As sample size increases, MLE estimates converge to the true parameter values.</li>
+<li><strong>Asymptotic normality:</strong> For large samples, the sampling distribution of MLE estimates is approximately Normal, enabling confidence interval construction.</li>
+<li><strong>Efficiency:</strong> MLE achieves the lowest possible variance among consistent estimators (asymptotically).</li>
+</ul>
+<p><strong>Practical considerations:</strong> MLE for the GEV requires numerical optimization because there is no closed-form solution. The optimization can occasionally fail to converge, especially with small samples or extreme shape parameters. It is important to check that the algorithm converged and that the results are physically reasonable. The <code>xtimeseries</code> package handles these details internally, but users should always inspect the fitted parameters for plausibility.</p>
+<h3 id="Validating-MLE-with-Synthetic-Data">Validating MLE with Synthetic Data<a class="anchor-link" href="#Validating-MLE-with-Synthetic-Data">¶</a></h3><p>A good practice when learning any statistical method is to test it on synthetic data where the true parameters are known. If MLE is working correctly, it should recover the true parameters (within sampling variability). The cell below demonstrates this validation.</p>
 </div>
 </div>
 </div>
@@ -8511,18 +8599,22 @@ Shape (ξ)         0.150      0.186     +0.036
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <hr/>
-<h2 id="4.-Block-Maxima-Method:-Precipitation-Case-Study">4. Block Maxima Method: Precipitation Case Study<a class="anchor-link" href="#4.-Block-Maxima-Method:-Precipitation-Case-Study">¶</a></h2><h3 id="The-Block-Maxima-Approach">The Block Maxima Approach<a class="anchor-link" href="#The-Block-Maxima-Approach">¶</a></h3><p>The <strong>block maxima</strong> method is the most common approach for EVA:</p>
+<h2 id="4.-Block-Maxima-Method:-Precipitation-Case-Study">4. Block Maxima Method: Precipitation Case Study<a class="anchor-link" href="#4.-Block-Maxima-Method:-Precipitation-Case-Study">¶</a></h2><h3 id="The-Block-Maxima-Approach">The Block Maxima Approach<a class="anchor-link" href="#The-Block-Maxima-Approach">¶</a></h3><p>The <strong>block maxima</strong> method is the most widely used approach for extreme value analysis. The procedure is straightforward:</p>
 <ol>
 <li>Divide the time series into non-overlapping blocks (typically years)</li>
-<li>Extract the maximum from each block</li>
+<li>Extract the maximum value from each block</li>
 <li>Fit a GEV distribution to these maxima</li>
 </ol>
-<p><strong>Why annual blocks?</strong></p>
-<ul>
-<li>Captures seasonal variation (e.g., summer thunderstorms vs. winter storms)</li>
-<li>Ensures independence between blocks</li>
-<li>Provides a direct interpretation of return periods ("T-year event")</li>
-</ul>
+<p>This approach has a strong theoretical foundation: the Fisher-Tippett-Gnedenko theorem guarantees that block maxima converge to the GEV distribution. As long as our blocks are large enough for the asymptotic approximation to hold, the GEV provides a principled model.</p>
+<p><strong>Why annual blocks?</strong> The choice of block size involves a bias-variance tradeoff. Larger blocks better satisfy the asymptotic theory but yield fewer data points for fitting. Smaller blocks provide more data but may not satisfy the conditions for GEV convergence. In practice, <strong>annual blocks</strong> have become the standard for environmental applications for three important reasons:</p>
+<ol>
+<li><p><strong>Seasonal cycle capture:</strong> Annual blocks naturally capture the full range of weather patterns. Summer convective storms and winter nor'easters contribute differently to precipitation extremes; by taking annual maxima, we ensure our extreme value distribution reflects all seasonal contributions.</p>
+</li>
+<li><p><strong>Approximate independence:</strong> Weather systems operate on time scales of days to weeks, so annual maxima from consecutive years can reasonably be treated as independent observations---a key assumption for MLE.</p>
+</li>
+<li><p><strong>Interpretable return periods:</strong> When blocks are years, return periods have a direct interpretation. A 100-year return level means "exceeded on average once per 100 years," which is immediately meaningful for planning and communication.</p>
+</li>
+</ol>
 <pre><code>Daily data:     ─────●─────────●●───────────●─────────────
                      Year 1         Year 2         Year 3
                         ↓              ↓              ↓
@@ -8530,6 +8622,14 @@ Block maxima:          max₁          max₂          max₃
                         ↓              ↓              ↓
 GEV fit:           [max₁, max₂, max₃, ...] → GEV(μ, σ, ξ)
 </code></pre>
+<h3 id="Data-Quality-Considerations">Data Quality Considerations<a class="anchor-link" href="#Data-Quality-Considerations">¶</a></h3><p>Before extracting block maxima, it is essential to examine data quality. Common issues include:</p>
+<ul>
+<li><strong>Missing data:</strong> If a significant portion of a year's observations are missing, the annual maximum may underestimate the true maximum. A common threshold is to require at least 90% completeness (e.g., 330+ days) to include a year.</li>
+<li><strong>Measurement changes:</strong> Station relocations, instrument upgrades, or changes in observation practices can introduce artificial discontinuities.</li>
+<li><strong>Outliers:</strong> Exceptionally large values should be verified against original records when possible. An apparent "extreme" might be a data entry error.</li>
+<li><strong>Units:</strong> Always verify units and convert if necessary. Our precipitation data is in inches; mixing inches and millimeters would produce nonsensical results.</li>
+</ul>
+<p>The New Brunswick precipitation record we analyze below spans 55 years (1969-2023) with high completeness, making it suitable for EVA without special handling.</p>
 </div>
 </div>
 </div>
@@ -8699,14 +8799,21 @@ Shape (ξ):    0.350
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="Diagnostic-Plots:-Assessing-Model-Fit">Diagnostic Plots: Assessing Model Fit<a class="anchor-link" href="#Diagnostic-Plots:-Assessing-Model-Fit">¶</a></h3><p>After fitting a GEV, we must check whether the model adequately describes the data. Standard diagnostics include:</p>
+<h3 id="Interpreting-the-GEV-Fit-for-New-Brunswick-Precipitation">Interpreting the GEV Fit for New Brunswick Precipitation<a class="anchor-link" href="#Interpreting-the-GEV-Fit-for-New-Brunswick-Precipitation">¶</a></h3><p>The fitted shape parameter $\xi = 0.35$ places New Brunswick precipitation firmly in the <strong>Fréchet domain</strong> (heavy-tailed). This has important physical and practical implications.</p>
+<p><strong>Physical interpretation:</strong> Heavy-tailed precipitation is characteristic of locations where convective storms can produce exceptionally intense rainfall. In the Mid-Atlantic region, summer thunderstorms and tropical moisture can generate extreme daily totals that far exceed typical values. The positive shape parameter tells us that these rare, intense events are more likely than a Gumbel distribution would predict.</p>
+<p><strong>Practical implications:</strong> With $\xi &gt; 0$, return levels grow rapidly as return periods increase. The 100-year return level is not simply twice the 50-year level---it could be substantially higher. This means that extrapolating to very long return periods (say, 500 or 1000 years) produces increasingly large values, with correspondingly large uncertainty.</p>
+<h3 id="Diagnostic-Plots:-Assessing-Model-Fit">Diagnostic Plots: Assessing Model Fit<a class="anchor-link" href="#Diagnostic-Plots:-Assessing-Model-Fit">¶</a></h3><p>Fitting a distribution is not enough; we must verify that the fitted model adequately describes the data. If the GEV is a poor fit, our return level estimates will be unreliable. Standard diagnostic plots help us assess fit quality:</p>
 <ol>
-<li><strong>Probability Plot</strong>: Compares empirical and model probabilities</li>
-<li><strong>Q-Q Plot</strong>: Compares empirical and model quantiles</li>
-<li><strong>Return Level Plot</strong>: Model vs. empirical return levels</li>
-<li><strong>Density Comparison</strong>: Histogram vs. fitted PDF</li>
+<li><p><strong>Probability Plot:</strong> Compares empirical cumulative probabilities (from the data) against theoretical probabilities (from the fitted GEV). Points should lie close to the diagonal 1:1 line.</p>
+</li>
+<li><p><strong>Q-Q Plot (Quantile-Quantile):</strong> Compares empirical quantiles against theoretical quantiles. This is similar to the probability plot but emphasizes the tails. Systematic curvature indicates model misspecification.</p>
+</li>
+<li><p><strong>Return Level Plot:</strong> Shows fitted return levels as a function of return period, with observed values overlaid. Points should fall within the confidence envelope.</p>
+</li>
+<li><p><strong>Density Comparison:</strong> Overlays the fitted PDF on a histogram of the data. The overall shape should match.</p>
+</li>
 </ol>
-<p>Good fit = points lie close to the 1:1 line (diagonal).</p>
+<p>Good fit means points lie close to the 1:1 line (for probability and Q-Q plots) or within confidence bounds (for return level plots). Systematic deviations indicate problems.</p>
 </div>
 </div>
 </div>
@@ -8754,44 +8861,50 @@ Shape (ξ):    0.350
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="Interpreting-Diagnostic-Plots">Interpreting Diagnostic Plots<a class="anchor-link" href="#Interpreting-Diagnostic-Plots">¶</a></h3><p><strong>What to look for:</strong></p>
+<h3 id="How-to-Read-Diagnostic-Plots">How to Read Diagnostic Plots<a class="anchor-link" href="#How-to-Read-Diagnostic-Plots">¶</a></h3><p>Interpreting diagnostic plots is a skill that improves with practice. Here is detailed guidance for each plot type:</p>
 <table>
 <thead>
 <tr>
 <th>Plot</th>
-<th>Good Fit</th>
-<th>Poor Fit</th>
+<th>Good Fit Signs</th>
+<th>Poor Fit Signs</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Probability Plot</td>
 <td>Points on diagonal</td>
-<td>Systematic deviation</td>
+<td>Systematic deviation from line</td>
 </tr>
 <tr>
 <td>Q-Q Plot</td>
-<td>Points on diagonal</td>
-<td>Curved pattern</td>
+<td>Points on diagonal, especially in tails</td>
+<td>Curved pattern or S-shape</td>
 </tr>
 <tr>
 <td>Return Level Plot</td>
-<td>Points within CI</td>
-<td>Points outside CI</td>
+<td>Observed points within CI band</td>
+<td>Points systematically outside band</td>
 </tr>
 <tr>
-<td>Density</td>
-<td>Histogram matches PDF</td>
-<td>Shape mismatch</td>
+<td>Density Plot</td>
+<td>Histogram matches PDF shape</td>
+<td>Shape mismatch, modes in wrong place</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Common issues:</strong></p>
+<p><strong>Common diagnostic patterns and their meaning:</strong></p>
 <ul>
-<li><strong>Upward curve in Q-Q plot</strong>: Model underestimates large extremes (may need heavier tail)</li>
-<li><strong>Downward curve</strong>: Model overestimates extremes</li>
-<li><strong>S-shape</strong>: Wrong distribution family</li>
+<li><p><strong>Upward curve in Q-Q plot (points above line at right):</strong> The model underestimates large extremes. The data has a heavier tail than the fitted GEV suggests. This might indicate the shape parameter is too small.</p>
+</li>
+<li><p><strong>Downward curve in Q-Q plot (points below line at right):</strong> The model overestimates large extremes. The data is lighter-tailed than fitted. Consider whether an outlier is inflating the shape estimate.</p>
+</li>
+<li><p><strong>S-shaped pattern in Q-Q plot:</strong> The fitted distribution is fundamentally wrong---perhaps both tails are misfit. This can occur if the data is multimodal or comes from a mixture of processes.</p>
+</li>
+<li><p><strong>Single outlier far from line:</strong> Check whether this observation is a data error. If it is valid, it may simply be sampling variability. A single outlier should not cause alarm if the rest of the fit is good.</p>
+</li>
 </ul>
+<p>For our New Brunswick precipitation data, the diagnostic plots show reasonable agreement between the fitted GEV and the observed data, supporting the use of this model for return level estimation.</p>
 </div>
 </div>
 </div>
@@ -8803,23 +8916,23 @@ Shape (ξ):    0.350
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <hr/>
-<h2 id="5.-Return-Levels-and-Return-Periods">5. Return Levels and Return Periods<a class="anchor-link" href="#5.-Return-Levels-and-Return-Periods">¶</a></h2><h3 id="Definitions">Definitions<a class="anchor-link" href="#Definitions">¶</a></h3><p><strong>Return Period</strong> ($T$): The average time between events exceeding a given level.</p>
-<ul>
-<li>"100-year flood" = event expected to be exceeded on average once per 100 years</li>
-<li>Annual exceedance probability = $1/T$ = 1% for a 100-year event</li>
-</ul>
-<p><strong>Return Level</strong> ($x_T$): The level expected to be exceeded once in $T$ years.</p>
-<ul>
-<li>The inverse relationship: given $T$, what is the corresponding level?</li>
-</ul>
-<h3 id="Mathematical-Formulas">Mathematical Formulas<a class="anchor-link" href="#Mathematical-Formulas">¶</a></h3><p>The return level for period $T$ is:</p>
+<h2 id="5.-Return-Levels-and-Return-Periods">5. Return Levels and Return Periods<a class="anchor-link" href="#5.-Return-Levels-and-Return-Periods">¶</a></h2><h3 id="Definitions-and-Core-Concepts">Definitions and Core Concepts<a class="anchor-link" href="#Definitions-and-Core-Concepts">¶</a></h3><p>Return levels and return periods are the practical outputs of extreme value analysis---the numbers that engineers, planners, and policymakers actually use. Understanding exactly what they mean, and how they are computed, is essential.</p>
+<p><strong>Return Period</strong> ($T$): The average waiting time (in years, if using annual blocks) between events that exceed a given level. A "100-year flood" has return period $T = 100$ years, meaning such events occur on average once per century.</p>
+<p><strong>Return Level</strong> ($x_T$): The level expected to be exceeded once per $T$ years on average. It is the inverse concept: given a return period, what is the corresponding magnitude?</p>
+<p>These concepts are linked through probability. If the return period is $T$ years, then the annual exceedance probability is $p = 1/T$. For a 100-year event, $p = 1/100 = 0.01 = 1\%$. Each year, there is a 1% chance of exceeding the 100-year level.</p>
+<h3 id="Deriving-the-Return-Level-Formula">Deriving the Return Level Formula<a class="anchor-link" href="#Deriving-the-Return-Level-Formula">¶</a></h3><p>Let's derive the return level formula from first principles. We want to find the level $x_T$ such that:</p>
+<p>$$P(X &gt; x_T) = \frac{1}{T}$$</p>
+<p>This says the probability of exceeding $x_T$ in any given year is $1/T$. Equivalently, using the CDF $G(x)$:</p>
+<p>$$P(X \leq x_T) = 1 - \frac{1}{T}$$</p>
+<p>For the GEV distribution, $G(x_T) = 1 - 1/T$. We invert this to solve for $x_T$.</p>
+<p>First, define $y_p = -\log(1 - 1/T)$, which is the so-called "reduced variate." Then, for the GEV with $\xi \neq 0$:</p>
 <p>$$x_T = \mu + \frac{\sigma}{\xi}\left[y_p^{-\xi} - 1\right]$$</p>
-<p>where $y_p = -\ln(1 - 1/T)$.</p>
-<p>For the Gumbel case ($\xi = 0$):</p>
-<p>$$x_T = \mu - \sigma \ln(-\ln(1 - 1/T))$$</p>
-<p>The return period for a level $x$ is:</p>
+<p>For the Gumbel case ($\xi = 0$), taking the limit:</p>
+<p>$$x_T = \mu - \sigma \log(-\log(1 - 1/T)) = \mu - \sigma \log(y_p)$$</p>
+<p><strong>Interpretation of the formula:</strong> The return level is the location parameter plus a correction that depends on how far into the tail we want to go (determined by $T$) and how that tail behaves (determined by $\xi$ and $\sigma$). For heavy-tailed distributions ($\xi &gt; 0$), the $y_p^{-\xi}$ term grows rapidly with $T$, producing large return levels. For bounded distributions ($\xi &lt; 0$), the term approaches a finite limit.</p>
+<h3 id="Return-Period-from-Return-Level">Return Period from Return Level<a class="anchor-link" href="#Return-Period-from-Return-Level">¶</a></h3><p>The inverse calculation---given a level $x$, what is its return period?---uses:</p>
 <p>$$T = \frac{1}{1 - G(x)}$$</p>
-<p>where $G(x)$ is the GEV CDF.</p>
+<p>where $G(x)$ is the GEV CDF evaluated at $x$. This tells us how rare a given event is. If we observe a storm that produces 10 inches of rain, we can ask: what return period does this represent?</p>
 </div>
 </div>
 </div>
@@ -8886,11 +8999,17 @@ Shape (ξ):    0.350
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="Understanding-Return-Periods:-A-Common-Misconception">Understanding Return Periods: A Common Misconception<a class="anchor-link" href="#Understanding-Return-Periods:-A-Common-Misconception">¶</a></h3><p>Many people interpret "100-year event" incorrectly. Let's clarify:</p>
+<h3 id="The-%22100-Year-Event%22-Misconception:-A-Deeper-Look">The "100-Year Event" Misconception: A Deeper Look<a class="anchor-link" href="#The-%22100-Year-Event%22-Misconception:-A-Deeper-Look">¶</a></h3><p>The term "100-year event" is among the most misunderstood concepts in hazard communication. Let's formalize why the common interpretation is wrong and develop correct intuition.</p>
 <p><strong>Misconception:</strong> "We just had a 100-year flood, so we're safe for the next 99 years."</p>
-<p><strong>Reality:</strong> Each year is independent. The probability of exceeding the 100-year level is <strong>always 1%</strong>, regardless of what happened before.</p>
-<p>The probability of seeing at least one 100-year event in $n$ years is:</p>
-<p>$$P(\text{at least one}) = 1 - \left(1 - \frac{1}{100}\right)^n$$</p>
+<p><strong>Reality:</strong> Each year is statistically independent. The probability of exceeding the 100-year level is <strong>always 1%</strong>, regardless of what happened last year or last decade. The river has no memory; the atmosphere does not track debts.</p>
+<p>To see why this matters, consider the probability of experiencing at least one $T$-year event over a time horizon of $n$ years. If each year has independent probability $1/T$ of exceedance, then:</p>
+<p>$$P(\text{at least one exceedance in } n \text{ years}) = 1 - \left(1 - \frac{1}{T}\right)^n$$</p>
+<p>This is a binomial probability. The term $(1 - 1/T)^n$ is the probability of <em>no</em> exceedance in $n$ years; subtracting from 1 gives the probability of at least one.</p>
+<p>For a 100-year event over 100 years:
+$$P = 1 - (1 - 0.01)^{100} = 1 - 0.99^{100} \approx 1 - 0.366 = 0.634$$</p>
+<p>So there is approximately a <strong>63%</strong> chance of seeing at least one 100-year event in any 100-year period. This is not 100%, as many people assume. Conversely, there is a 37% chance of going an entire century without such an event.</p>
+<p>The 63.2% figure is not coincidental; it equals $1 - 1/e$. As $n \to \infty$ with $n = T$, the probability converges to $1 - e^{-1} \approx 0.632$.</p>
+<p><strong>Implications for communication:</strong> When explaining risks to non-technical audiences, it may be clearer to state annual probabilities rather than return periods. "A 1% annual chance" is often easier to understand correctly than "a 100-year event." The visualization below shows how exceedance probability accumulates over time for events of different rarity.</p>
 </div>
 </div>
 </div>
@@ -8965,14 +9084,28 @@ In our 55-year precipitation record, P(100-yr event) = 42.5%
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="Bootstrap-Confidence-Intervals">Bootstrap Confidence Intervals<a class="anchor-link" href="#Bootstrap-Confidence-Intervals">¶</a></h3><p>Return level estimates have uncertainty due to limited sample size. <strong>Bootstrap resampling</strong> provides confidence intervals:</p>
+<h3 id="Bootstrap-Confidence-Intervals">Bootstrap Confidence Intervals<a class="anchor-link" href="#Bootstrap-Confidence-Intervals">¶</a></h3><p>Return level estimates are subject to uncertainty because we have only a finite sample of annual maxima. A 50-year record cannot perfectly constrain the 100-year return level. Reporting point estimates without uncertainty is misleading; confidence intervals are essential.</p>
+<p><strong>Bootstrap resampling</strong> is a flexible, nonparametric method for estimating uncertainty:</p>
 <ol>
-<li>Resample the data with replacement (same size as original)</li>
-<li>Fit GEV to the resampled data</li>
-<li>Calculate return levels</li>
-<li>Repeat many times (e.g., 1000)</li>
-<li>Use percentiles of the results as confidence bounds</li>
+<li><p><strong>Resample:</strong> Draw a new dataset of the same size by sampling <em>with replacement</em> from the original annual maxima. Some years will appear multiple times; others will be omitted.</p>
+</li>
+<li><p><strong>Refit:</strong> Fit the GEV to this bootstrap sample and compute return levels.</p>
+</li>
+<li><p><strong>Repeat:</strong> Perform steps 1-2 many times (typically 500-2000 iterations).</p>
+</li>
+<li><p><strong>Aggregate:</strong> The distribution of bootstrap return levels approximates the sampling distribution. Use percentiles (e.g., 2.5th and 97.5th) as confidence bounds.</p>
+</li>
 </ol>
+<p><strong>Why does bootstrapping work?</strong> The key insight is that the empirical distribution (our observed data) is our best estimate of the true population distribution. By resampling from it, we simulate what might have happened if we had collected a different 50-year sample from the same climate. The variability across bootstrap samples reflects the uncertainty in our estimates.</p>
+<p><strong>Assumptions:</strong> Bootstrap assumes that observations are independent and identically distributed (i.i.d.). For annual maxima, this is reasonable if the climate is stationary. Non-stationarity (trends) violates this assumption and requires modified approaches (see Section 8).</p>
+<p><strong>What do we learn from confidence intervals?</strong></p>
+<ul>
+<li>Wider intervals indicate greater uncertainty</li>
+<li>Intervals widen as return period increases (extrapolation is less certain)</li>
+<li>Longer records produce narrower intervals (more data reduces uncertainty)</li>
+<li>Heavy-tailed distributions (large $\xi$) tend to have wider intervals</li>
+</ul>
+<p>The table and plot below show bootstrap confidence intervals for New Brunswick precipitation. Notice how the interval for the 100-year return level is much wider than for the 10-year level.</p>
 </div>
 </div>
 </div>
@@ -9106,8 +9239,40 @@ Note: Confidence intervals widen for longer return periods.
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="The-Limits-of-Extrapolation">The Limits of Extrapolation<a class="anchor-link" href="#The-Limits-of-Extrapolation">¶</a></h3><p>Return level plots reveal an important caveat: uncertainty grows as we extrapolate to longer return periods. With 54 years of data, we have directly observed roughly the 50-year event. Return periods beyond this are extrapolations based on the fitted GEV shape.</p>
+<p>A useful rule of thumb: <strong>treat return periods greater than twice the record length with skepticism</strong>. The 100-year estimate from a 50-year record is extrapolation; the 500-year estimate is speculation. The shape parameter $\xi$ has the largest influence on long-period return levels, and $\xi$ is notoriously difficult to estimate precisely.</p>
+<p>For critical applications requiring very long return periods (e.g., nuclear facility siting often uses 10,000-year standards), EVA estimates should be complemented by:</p>
+<ul>
+<li>Regional frequency analysis (pooling data from multiple similar locations)</li>
+<li>Physical modeling (e.g., probable maximum precipitation studies)</li>
+<li>Expert judgment incorporating paleoclimate evidence</li>
+</ul>
+<blockquote>
+<p><strong>Key Takeaway:</strong> Always report confidence intervals with return level estimates. Wider intervals at longer return periods honestly communicate the limits of our knowledge.</p>
+</blockquote>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <hr/>
-<h2 id="6.-Storm-Surge-Case-Study:-A-Longer-Record">6. Storm Surge Case Study: A Longer Record<a class="anchor-link" href="#6.-Storm-Surge-Case-Study:-A-Longer-Record">¶</a></h2><p>Now let's apply the same analysis to storm surge data from Atlantic City. This record spans 112 years—twice as long as our precipitation data—allowing us to examine how sample size affects our estimates.</p>
+<h2 id="6.-Storm-Surge-Case-Study:-A-Longer-Record">6. Storm Surge Case Study: A Longer Record<a class="anchor-link" href="#6.-Storm-Surge-Case-Study:-A-Longer-Record">¶</a></h2><p>Having developed the methodology with precipitation data, we now apply the same analysis to a second variable: storm surge at Atlantic City, New Jersey. This case study serves several important purposes.</p>
+<p><strong>Why a second case study?</strong> Repetition reinforces learning. By walking through the same EVA workflow for a different physical variable, we solidify the concepts and demonstrate that the methodology is general. More importantly, the storm surge data differs from precipitation in ways that illuminate key aspects of extreme value analysis.</p>
+<p><strong>What makes storm surge different?</strong></p>
+<ol>
+<li><p><strong>Record length:</strong> The Atlantic City tide gauge has operated since 1911, providing 103 years of annual maxima compared to 54 years for precipitation. This allows us to directly observe how uncertainty decreases with longer records.</p>
+</li>
+<li><p><strong>Tail behavior:</strong> While precipitation showed a heavy tail ($\xi &gt; 0$), we will see that storm surge exhibits different behavior. This illustrates the full range of GEV types.</p>
+</li>
+<li><p><strong>Physical constraints:</strong> Storm surge is fundamentally different from precipitation in its generating mechanisms. Coastal geometry, storm intensity limits, and tidal interactions may impose bounds on maximum surge height.</p>
+</li>
+</ol>
+<p>The analysis workflow is identical to what we did for precipitation: extract annual maxima, fit a GEV, check diagnostics, and compute return levels with confidence intervals. As we proceed, pay attention to how the shape parameter and confidence interval widths differ from the precipitation case.</p>
 </div>
 </div>
 </div>
@@ -9261,7 +9426,16 @@ Shape (ξ):    -0.0609
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="Comparing-the-Two-Datasets">Comparing the Two Datasets<a class="anchor-link" href="#Comparing-the-Two-Datasets">¶</a></h3><p>Let's compare the GEV fits for precipitation and storm surge:</p>
+<h3 id="Interpreting-the-Storm-Surge-Shape-Parameter">Interpreting the Storm Surge Shape Parameter<a class="anchor-link" href="#Interpreting-the-Storm-Surge-Shape-Parameter">¶</a></h3><p>The fitted shape parameter for storm surge is $\xi \approx -0.06$, placing it in or near the <strong>Weibull domain</strong> (bounded or light-tailed). This contrasts sharply with precipitation's heavy tail ($\xi = 0.35$) and has important physical interpretations.</p>
+<p><strong>Physical reasoning:</strong> Storm surge is generated by low atmospheric pressure and wind stress pushing water toward the coast. Unlike precipitation, which can scale dramatically with atmospheric instability (convective storms can intensify rapidly), storm surge is constrained by:</p>
+<ul>
+<li><strong>Storm intensity limits:</strong> There are physical bounds on how strong a storm can become (maximum potential intensity theory).</li>
+<li><strong>Storm duration and track:</strong> Surge depends on sustained wind over the right fetch; geometrically, this limits the maximum possible surge at any location.</li>
+<li><strong>Coastal geometry:</strong> The shape of the coastline and continental shelf modulates surge height.</li>
+</ul>
+<p>These constraints suggest that storm surge may indeed have a finite upper bound, making a Weibull-type distribution physically plausible.</p>
+<p><strong>Statistical caution:</strong> With $\xi$ close to zero, the difference between Weibull, Gumbel, and light Fréchet behavior is subtle. The confidence interval on $\xi$ likely spans zero. For practical purposes, treating storm surge as approximately Gumbel may be reasonable.</p>
+<h3 id="Comparing-the-Two-Datasets">Comparing the Two Datasets<a class="anchor-link" href="#Comparing-the-Two-Datasets">¶</a></h3><p>Let's compare the GEV fits for precipitation and storm surge to highlight the key differences:</p>
 </div>
 </div>
 </div>
@@ -9411,23 +9585,55 @@ Key Observations:
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<hr/>
-<h2 id="7.-Peaks-Over-Threshold-(POT)-Method">7. Peaks Over Threshold (POT) Method<a class="anchor-link" href="#7.-Peaks-Over-Threshold-(POT)-Method">¶</a></h2><h3 id="Why-Use-POT?">Why Use POT?<a class="anchor-link" href="#Why-Use-POT?">¶</a></h3><p>The <strong>block maxima</strong> method has a limitation: it uses only one observation per year. With 50 years of daily data, we have ~18,250 observations but only fit to 50 points!</p>
-<p>The <strong>Peaks Over Threshold (POT)</strong> method addresses this by:</p>
+<h3 id="The-Value-of-Longer-Records">The Value of Longer Records<a class="anchor-link" href="#The-Value-of-Longer-Records">¶</a></h3><p>The comparison of confidence interval widths between precipitation (54 years) and storm surge (103 years) illustrates a fundamental principle: <strong>more data reduces uncertainty</strong>. This follows from basic statistics: the standard error of parameter estimates typically scales with $1/\sqrt{n}$, where $n$ is the sample size.</p>
+<p>For EVA, longer records are particularly valuable because:</p>
 <ol>
-<li>Setting a high threshold $u$</li>
-<li>Using <em>all</em> observations exceeding $u$</li>
-<li>Fitting a <strong>Generalized Pareto Distribution (GPD)</strong> to the exceedances</li>
+<li><p><strong>Direct observation of rare events:</strong> With 100+ years of data, we have likely observed events with return periods up to ~100 years. Estimates of the 100-year return level are interpolations rather than extrapolations.</p>
+</li>
+<li><p><strong>Better shape parameter estimation:</strong> The shape parameter $\xi$ is notoriously difficult to estimate from short records. Its uncertainty dominates return level uncertainty at long return periods. Longer records constrain $\xi$ more precisely.</p>
+</li>
+<li><p><strong>Non-stationarity detection:</strong> Trends and shifts are easier to detect with longer records (see Section 8).</p>
+</li>
 </ol>
-<p><strong>Advantages:</strong></p>
+<p>The Atlantic City storm surge record, spanning over a century, exemplifies why long-term monitoring networks are invaluable for hazard assessment. Unfortunately, many locations lack such extensive records, forcing us to work with the limited data available and honestly acknowledge the resulting uncertainty.</p>
+<blockquote>
+<p><strong>Key Contrast:</strong> Precipitation's heavy tail ($\xi = 0.35$) produces rapidly growing return levels, while storm surge's near-Gumbel behavior ($\xi \approx -0.06$) produces more moderate growth. These differences reflect the underlying physics of each phenomenon and have direct implications for infrastructure design.</p>
+</blockquote>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<hr/>
+<h2 id="7.-Peaks-Over-Threshold-(POT)-Method">7. Peaks Over Threshold (POT) Method<a class="anchor-link" href="#7.-Peaks-Over-Threshold-(POT)-Method">¶</a></h2><h3 id="Motivation:-Using-More-of-Our-Data">Motivation: Using More of Our Data<a class="anchor-link" href="#Motivation:-Using-More-of-Our-Data">¶</a></h3><p>The <strong>block maxima</strong> method, for all its theoretical elegance, has a practical limitation: it discards most of the data. With 50 years of daily observations, we have approximately 18,250 measurements, yet the block maxima approach uses only 50 values for fitting. All those "near-misses"---days with extreme but not annual-maximum precipitation---are thrown away.</p>
+<p>The <strong>Peaks Over Threshold (POT)</strong> method addresses this inefficiency by using <em>all</em> observations above a high threshold, not just the annual maxima. The theoretical foundation comes from the <strong>Pickands-Balkema-de Haan theorem</strong> (1970s), which is the POT analog to the Fisher-Tippett-Gnedenko theorem for block maxima:</p>
+<blockquote>
+<p><strong>Theorem:</strong> For a wide class of distributions, the conditional distribution of exceedances over a high threshold $u$ converges to the <strong>Generalized Pareto Distribution (GPD)</strong> as $u$ increases.</p>
+</blockquote>
+<p>Just as block maxima converge to the GEV, threshold exceedances converge to the GPD. This provides theoretical justification for POT analysis.</p>
+<p><strong>The POT procedure:</strong></p>
+<ol>
+<li>Choose a high threshold $u$</li>
+<li>Extract all observations exceeding $u$</li>
+<li>Compute exceedances: $y_i = x_i - u$ for each $x_i &gt; u$</li>
+<li>Fit a GPD to the exceedances</li>
+</ol>
+<p><strong>Advantages of POT:</strong></p>
 <ul>
-<li>Uses more data → potentially more efficient</li>
-<li>Better for estimating frequent events (2-20 year return periods)</li>
+<li>Uses more data, potentially improving statistical efficiency</li>
+<li>Better suited for estimating frequent events (2-20 year return periods)</li>
+<li>Can provide more stable estimates when annual maxima vary greatly</li>
 </ul>
 <p><strong>Challenges:</strong></p>
 <ul>
-<li>Threshold selection is subjective</li>
-<li>Must ensure independence of exceedances (declustering)</li>
+<li>Threshold selection requires judgment and diagnostic tools</li>
+<li>Observations must be independent (requiring declustering for clustered extremes)</li>
+<li>Theory requires threshold to be "sufficiently high"---but how high is enough?</li>
 </ul>
 </div>
 </div>
@@ -9439,14 +9645,55 @@ Key Observations:
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="The-GPD-Distribution">The GPD Distribution<a class="anchor-link" href="#The-GPD-Distribution">¶</a></h3><p>If we define exceedances as $Y = X - u$ for $X &gt; u$, then $Y$ follows a <strong>Generalized Pareto Distribution</strong>:</p>
+<h3 id="The-Generalized-Pareto-Distribution-(GPD)">The Generalized Pareto Distribution (GPD)<a class="anchor-link" href="#The-Generalized-Pareto-Distribution-(GPD)">¶</a></h3><p>The GPD is the natural distribution for threshold exceedances, just as the GEV is natural for block maxima. If we define exceedances as $Y = X - u$ for $X &gt; u$ (i.e., how much the observation exceeds the threshold), then $Y$ follows a GPD:</p>
 <p>$$F(y) = 1 - \left[1 + \frac{\xi y}{\sigma}\right]^{-1/\xi}$$</p>
 <p>for $y &gt; 0$, where:</p>
 <ul>
-<li>$\sigma$ is the scale parameter</li>
-<li>$\xi$ is the shape parameter (same interpretation as GEV)</li>
+<li>$\sigma &gt; 0$ is the scale parameter</li>
+<li>$\xi$ is the shape parameter (same interpretation as GEV: $\xi &gt; 0$ means heavy tail, $\xi &lt; 0$ means bounded tail)</li>
 </ul>
-<p>The GPD is the natural model for exceedances, just as the GEV is natural for block maxima.</p>
+<p>For $\xi = 0$, the GPD reduces to the exponential distribution: $F(y) = 1 - e^{-y/\sigma}$.</p>
+<h3 id="The-GEV-GPD-Connection">The GEV-GPD Connection<a class="anchor-link" href="#The-GEV-GPD-Connection">¶</a></h3><p>A remarkable and useful fact: <strong>the GEV and GPD share the same shape parameter $\xi$</strong>. If block maxima follow a GEV with shape $\xi$, then threshold exceedances follow a GPD with the same $\xi$. This makes physical sense: both methods are probing the same tail behavior, just from different angles.</p>
+<p>The scale parameters are also related. If the GEV has scale $\sigma_{GEV}$ and the threshold is $u$, then the GPD scale is approximately:</p>
+<p>$$\sigma_{GPD} \approx \sigma_{GEV} + \xi(u - \mu_{GEV})$$</p>
+<p>This connection means that, in principle, GEV and GPD analyses of the same data should yield consistent results. Disagreement may indicate issues with threshold selection or model assumptions.</p>
+<h3 id="When-to-Use-POT-vs.-Block-Maxima">When to Use POT vs. Block Maxima<a class="anchor-link" href="#When-to-Use-POT-vs.-Block-Maxima">¶</a></h3><table>
+<thead>
+<tr>
+<th>Consideration</th>
+<th>Block Maxima (GEV)</th>
+<th>Peaks Over Threshold (GPD)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Data efficiency</td>
+<td>Uses 1 point/year</td>
+<td>Uses all exceedances</td>
+</tr>
+<tr>
+<td>Best for</td>
+<td>Long return periods</td>
+<td>Short to moderate return periods</td>
+</tr>
+<tr>
+<td>Main assumption</td>
+<td>Annual independence</td>
+<td>Threshold exceedance independence</td>
+</tr>
+<tr>
+<td>Key challenge</td>
+<td>Limited sample size</td>
+<td>Threshold selection</td>
+</tr>
+<tr>
+<td>Subjectivity</td>
+<td>Low (annual blocks standard)</td>
+<td>Higher (threshold choice)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Rule of thumb:</strong> For estimating 50-100+ year return levels with limited data, block maxima is often simpler and more defensible. For frequent events (2-20 year) or when many exceedances are available, POT may be more efficient.</p>
 </div>
 </div>
 </div>
@@ -9457,26 +9704,26 @@ Key Observations:
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="Threshold-Selection">Threshold Selection<a class="anchor-link" href="#Threshold-Selection">¶</a></h3><p>Choosing the right threshold is crucial:</p>
+<h3 id="Threshold-Selection:-The-Critical-Choice">Threshold Selection: The Critical Choice<a class="anchor-link" href="#Threshold-Selection:-The-Critical-Choice">¶</a></h3><p>Choosing the right threshold is the most challenging aspect of POT analysis. It involves a fundamental tradeoff:</p>
 <ul>
-<li><strong>Too low:</strong> Violates the asymptotic assumption; bias in estimates</li>
-<li><strong>Too high:</strong> Too few exceedances; high variance</li>
+<li><strong>Too low:</strong> The asymptotic GPD approximation breaks down. The data includes "non-extreme" values that don't follow the GPD, causing bias.</li>
+<li><strong>Too high:</strong> Too few exceedances remain. While the GPD approximation improves, the small sample size inflates variance.</li>
 </ul>
-<p>Two diagnostic tools help:</p>
-<ol>
-<li><p><strong>Mean Residual Life (MRL) Plot:</strong></p>
+<p>The goal is to find the lowest threshold where the GPD provides an adequate approximation---maximizing sample size while maintaining model validity.</p>
+<p><strong>Diagnostic Tool 1: Mean Residual Life (MRL) Plot</strong></p>
+<p>A key property of the GPD is that the mean excess (average exceedance above the threshold) is linear in the threshold:</p>
+<p>$$E[X - u \mid X &gt; u] = \frac{\sigma + \xi u}{1 - \xi}$$</p>
+<p>The MRL plot shows the sample mean excess against threshold. If the GPD holds above some threshold $u_0$, the plot should be approximately linear for $u &gt; u_0$. Choose the lowest threshold where linearity begins.</p>
+<p><strong>Diagnostic Tool 2: Parameter Stability Plot</strong></p>
+<p>If the GPD is valid above threshold $u_0$, then the shape parameter $\xi$ should be constant for all thresholds above $u_0$. The parameter stability plot shows estimated $\xi$ (and a modified scale) against threshold. Look for a region where parameters stabilize (flatten out). The threshold where stability begins is a candidate.</p>
+<p><strong>Practical rules of thumb:</strong></p>
 <ul>
-<li>For GPD, mean excess $E[X-u | X&gt;u]$ is linear in $u$</li>
-<li>Choose the lowest threshold where linearity holds</li>
+<li>Commonly use the 90th to 99th percentile as starting points</li>
+<li>Aim for at least 50-100 exceedances (more is better)</li>
+<li>Consider physical reasoning: what constitutes an "extreme" for this variable?</li>
+<li>If MRL and stability plots disagree, investigate further</li>
 </ul>
-</li>
-<li><p><strong>Parameter Stability Plot:</strong></p>
-<ul>
-<li>GPD parameters should stabilize above the correct threshold</li>
-<li>Look for flat region in shape parameter</li>
-</ul>
-</li>
-</ol>
+<p>The plots below apply these diagnostics to the New Brunswick precipitation data.</p>
 </div>
 </div>
 </div>
@@ -9606,12 +9853,26 @@ POT Extraction Results:
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="Declustering">Declustering<a class="anchor-link" href="#Declustering">¶</a></h3><p>When extreme events occur, they often cluster (e.g., multiple days of heavy rain from a single storm). To satisfy the independence assumption, we <strong>decluster</strong> the exceedances:</p>
+<h3 id="Declustering:-Ensuring-Independence">Declustering: Ensuring Independence<a class="anchor-link" href="#Declustering:-Ensuring-Independence">¶</a></h3><p>A critical assumption in POT analysis is that exceedances are independent. But extreme events often cluster in time: a multi-day storm produces several consecutive days of high precipitation; a week-long heat wave generates multiple extreme temperature readings. Using all these observations as if they were independent would violate the i.i.d. assumption and lead to underestimated uncertainty.</p>
+<p><strong>Declustering</strong> addresses this by identifying clusters of consecutive exceedances and retaining only the maximum (or another representative value) from each cluster:</p>
 <ol>
-<li>Identify clusters of consecutive exceedances</li>
-<li>Retain only the maximum within each cluster</li>
+<li>Identify runs of consecutive observations above the threshold</li>
+<li>Treat each run as a single "cluster" (one event)</li>
+<li>Keep only the cluster maximum</li>
 </ol>
-<p>The <code>run_length</code> parameter specifies the minimum gap (in time steps) between independent events.</p>
+<p>The <strong>run length</strong> parameter specifies the minimum gap required between clusters. If observations are separated by at least this many time steps, they are considered independent events. Choosing the run length requires physical reasoning:</p>
+<ul>
+<li>For <strong>daily precipitation</strong>, a run length of 2-3 days is common, reflecting the typical duration of a weather system.</li>
+<li>For <strong>hourly temperature</strong>, a run length of 24-48 hours might be appropriate for heat waves.</li>
+<li>For <strong>storm surge</strong>, consider the duration of storm systems affecting the coast.</li>
+</ul>
+<p><strong>What happens if we don't decluster?</strong> If we treat clustered exceedances as independent, we effectively count one physical event multiple times. This pseudoreplication:</p>
+<ul>
+<li>Inflates the apparent sample size</li>
+<li>Underestimates standard errors and confidence intervals</li>
+<li>May bias parameter estimates</li>
+</ul>
+<p>The code below uses <code>decluster=True</code> with a 3-day run length for precipitation.</p>
 </div>
 </div>
 </div>
@@ -9801,10 +10062,30 @@ GPD and GEV estimates should be similar if both models are appropriate.
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <hr/>
-<h2 id="8.-Non-Stationary-Extreme-Value-Analysis">8. Non-Stationary Extreme Value Analysis<a class="anchor-link" href="#8.-Non-Stationary-Extreme-Value-Analysis">¶</a></h2><h3 id="The-Stationarity-Assumption">The Stationarity Assumption<a class="anchor-link" href="#The-Stationarity-Assumption">¶</a></h3><p>Everything we've done so far assumes <strong>stationarity</strong>: the probability distribution doesn't change over time. But in the context of climate change, this assumption may be violated.</p>
-<p><strong>Non-stationary EVA</strong> allows distribution parameters to vary with time (or other covariates):</p>
+<h2 id="8.-Non-Stationary-Extreme-Value-Analysis">8. Non-Stationary Extreme Value Analysis<a class="anchor-link" href="#8.-Non-Stationary-Extreme-Value-Analysis">¶</a></h2><h3 id="The-Stationarity-Assumption-and-When-It-Fails">The Stationarity Assumption and When It Fails<a class="anchor-link" href="#The-Stationarity-Assumption-and-When-It-Fails">¶</a></h3><p>Everything we have done so far assumes <strong>stationarity</strong>: the probability distribution of extremes does not change over time. Mathematically, this means the GEV parameters $(\mu, \sigma, \xi)$ are constants. A 100-year event in 1920 is equally likely---and equally severe---as a 100-year event in 2020.</p>
+<p>But is this assumption justified? Several factors can cause the distribution of extremes to change over time:</p>
+<ol>
+<li><p><strong>Climate change:</strong> Global warming is shifting temperature distributions, intensifying the hydrological cycle, and altering storm patterns. What was once a rare extreme may become more common, or new extremes may emerge.</p>
+</li>
+<li><p><strong>Land use change:</strong> Urbanization changes local precipitation patterns (urban heat islands, altered runoff). Deforestation and agricultural expansion affect regional climate.</p>
+</li>
+<li><p><strong>Natural variability:</strong> Multi-decadal oscillations (PDO, AMO) can cause apparent trends that are actually cyclical.</p>
+</li>
+<li><p><strong>Measurement changes:</strong> Instrument upgrades, station relocations, or changes in observation practices can introduce artificial trends.</p>
+</li>
+</ol>
+<p>When stationarity is violated, standard EVA produces misleading results. A stationary model fitted to non-stationary data will average across the changing conditions, underestimating current risks if extremes are increasing, or overestimating them if extremes are decreasing.</p>
+<h3 id="Non-Stationary-GEV-Models">Non-Stationary GEV Models<a class="anchor-link" href="#Non-Stationary-GEV-Models">¶</a></h3><p><strong>Non-stationary EVA</strong> extends the GEV framework by allowing parameters to vary with time (or other covariates). The simplest approach is a linear trend in the location parameter:</p>
 <p>$$\mu(t) = \mu_0 + \mu_1 \cdot t$$</p>
-<p>This linear trend model asks: "Is the typical extreme changing over time?"</p>
+<p>where $t$ is time (typically year), $\mu_0$ is the intercept (location at a reference time), and $\mu_1$ is the trend (change in location per year). If $\mu_1 &gt; 0$, the typical extreme is increasing over time.</p>
+<p>More complex models can include:</p>
+<ul>
+<li>Trends in scale: $\log \sigma(t) = \sigma_0 + \sigma_1 \cdot t$ (log ensures positivity)</li>
+<li>Trends in shape: $\xi(t) = \xi_0 + \xi_1 \cdot t$ (rarely used; shape is hard to estimate)</li>
+<li>Non-linear trends: $\mu(t) = \mu_0 + \mu_1 \cdot t + \mu_2 \cdot t^2$</li>
+<li>Covariate dependence: $\mu(T_{global}) = \mu_0 + \mu_1 \cdot T_{global}$ where $T_{global}$ is global mean temperature</li>
+</ul>
+<p>The parameters are still estimated by MLE, but now we maximize the likelihood with respect to the trend coefficients rather than constant parameters.</p>
 </div>
 </div>
 </div>
@@ -9815,14 +10096,25 @@ GPD and GEV estimates should be similar if both models are appropriate.
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="Likelihood-Ratio-Test-for-Trends">Likelihood Ratio Test for Trends<a class="anchor-link" href="#Likelihood-Ratio-Test-for-Trends">¶</a></h3><p>To formally test for a trend, we compare two models:</p>
+<h3 id="Testing-for-Trends:-The-Likelihood-Ratio-Test">Testing for Trends: The Likelihood Ratio Test<a class="anchor-link" href="#Testing-for-Trends:-The-Likelihood-Ratio-Test">¶</a></h3><p>Before fitting a non-stationary model, we should ask: is there statistical evidence that the distribution is changing? Adding trend parameters always improves the fit (in terms of likelihood), but this improvement might be due to chance rather than a real trend. We need a formal hypothesis test.</p>
+<p>The <strong>likelihood ratio test (LRT)</strong> compares two nested models:</p>
 <ul>
-<li><strong>Stationary (null):</strong> $\mu = \mu_0$ (constant)</li>
-<li><strong>Non-stationary (alternative):</strong> $\mu(t) = \mu_0 + \mu_1 \cdot t$</li>
+<li><strong>Null hypothesis (H₀):</strong> The stationary model is adequate. $\mu = \mu_0$ (constant), meaning $\mu_1 = 0$.</li>
+<li><strong>Alternative hypothesis (H₁):</strong> The non-stationary model fits better. $\mu(t) = \mu_0 + \mu_1 \cdot t$, with $\mu_1 \neq 0$.</li>
 </ul>
-<p>The <strong>likelihood ratio test</strong> statistic:</p>
+<p>The test statistic is:</p>
 <p>$$D = 2[\ell(\text{non-stationary}) - \ell(\text{stationary})]$$</p>
-<p>Under the null hypothesis, $D \sim \chi^2_1$. A small p-value indicates evidence for a trend.</p>
+<p>where $\ell$ denotes the maximized log-likelihood. This statistic measures how much better the non-stationary model fits the data.</p>
+<p><strong>Why does this work?</strong> Under the null hypothesis (no true trend), the improvement in log-likelihood from adding a trend parameter follows a chi-squared distribution with 1 degree of freedom: $D \sim \chi^2_1$. This is a consequence of Wilks' theorem.</p>
+<p><strong>Interpretation:</strong></p>
+<ul>
+<li>Calculate $D$ from the fitted models</li>
+<li>Compare to $\chi^2_1$ distribution to get a p-value</li>
+<li>If p-value &lt; 0.05 (conventional threshold), reject H₀ and conclude there is evidence for a trend</li>
+<li>If p-value $\geq$ 0.05, the data are consistent with stationarity (though this does not prove stationarity)</li>
+</ul>
+<p><strong>AIC as an alternative:</strong> The Akaike Information Criterion (AIC) provides another way to compare models, penalizing for complexity. Lower AIC is better. AIC = $-2\ell + 2k$, where $k$ is the number of parameters.</p>
+<p>The code below tests both datasets for trends in the location parameter.</p>
 </div>
 </div>
 </div>
@@ -10071,11 +10363,27 @@ T (yr)                1912            2023          Change
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="Climate-Change-Implications">Climate Change Implications<a class="anchor-link" href="#Climate-Change-Implications">¶</a></h3><p>If extremes are changing over time, our infrastructure design standards may become inadequate:</p>
+<h3 id="Climate-Change-Implications:-What-Does-This-Mean-for-Planning?">Climate Change Implications: What Does This Mean for Planning?<a class="anchor-link" href="#Climate-Change-Implications:-What-Does-This-Mean-for-Planning?">¶</a></h3><p>The storm surge trend result has profound implications for coastal management. Let's unpack what a +46 mm/decade trend in the location parameter means in practice.</p>
+<p><strong>Physical interpretation:</strong> The trend captures the combined effect of:</p>
 <ul>
-<li>A structure designed for the "100-year event" of 1950 may face a much shorter effective return period today</li>
-<li>Future projections need to account for ongoing trends</li>
-<li>Non-stationary analysis helps quantify how "100-year events" are changing</li>
+<li><strong>Sea level rise:</strong> Global mean sea level has risen approximately 20 cm since 1900, directly elevating the baseline from which surges are measured.</li>
+<li><strong>Changing storm patterns:</strong> Whether Atlantic storm intensity or frequency has changed remains debated, but any shift would affect surge statistics.</li>
+<li><strong>Local factors:</strong> Land subsidence, harbor dredging, and coastal development can alter how surges propagate.</li>
+</ul>
+<p><strong>Implications for infrastructure:</strong></p>
+<p>If extremes are changing, infrastructure designed to historical standards becomes progressively less protected:</p>
+<ul>
+<li>A structure designed for the "100-year event" of 1912 may face a much shorter effective return period today</li>
+<li>Design standards based on stationary analysis underestimate future risk</li>
+<li>Structures with long lifespans (bridges, seawalls, nuclear plants) need to account for projected changes over their operational period</li>
+</ul>
+<p><strong>The "effective return period" concept:</strong> The code below demonstrates a striking result: the 100-year surge level of 1912 (about 1.35 m) is now only a 7-year event. What was once rare is now relatively common. This is what "non-stationarity" means in practical terms.</p>
+<p><strong>Planning under non-stationarity:</strong> Engineers and planners must decide how to incorporate trends:</p>
+<ul>
+<li>Design to future projected extremes, not historical ones</li>
+<li>Build in safety margins ("freeboard") to accommodate uncertainty</li>
+<li>Plan for adaptive management (structures that can be upgraded)</li>
+<li>Consider the consequences of being wrong in either direction</li>
 </ul>
 </div>
 </div>
@@ -10135,7 +10443,24 @@ Same level's return period in 2023: 7.0 years
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <hr/>
-<h2 id="9.-Complete-EVA-Workflow-Summary">9. Complete EVA Workflow Summary<a class="anchor-link" href="#9.-Complete-EVA-Workflow-Summary">¶</a></h2><h3 id="The-8-Step-EVA-Checklist">The 8-Step EVA Checklist<a class="anchor-link" href="#The-8-Step-EVA-Checklist">¶</a></h3><table>
+<h2 id="9.-Complete-EVA-Workflow-Summary">9. Complete EVA Workflow Summary<a class="anchor-link" href="#9.-Complete-EVA-Workflow-Summary">¶</a></h2><h3 id="Synthesizing-the-Key-Decision-Points">Synthesizing the Key Decision Points<a class="anchor-link" href="#Synthesizing-the-Key-Decision-Points">¶</a></h3><p>Having worked through the theory and two case studies, let's consolidate the EVA workflow into a practical guide. A typical analysis involves several decision points, each requiring judgment informed by both statistical principles and domain knowledge.</p>
+<p><strong>Data preparation</strong> is often underestimated but crucial. Before any statistical analysis:</p>
+<ul>
+<li>Verify units and convert if necessary (mixing inches and millimeters is a common error)</li>
+<li>Check for missing data and decide how to handle it (exclude incomplete years? Impute?)</li>
+<li>Look for obvious outliers or data quality issues</li>
+<li>Understand the measurement process (has instrumentation changed?)</li>
+</ul>
+<p><strong>Method choice</strong> depends on the question and available data:</p>
+<ul>
+<li>For estimating long return periods (50-500 years) with limited data, block maxima is simpler and often preferable</li>
+<li>For frequent events (2-20 years) or when many exceedances are available, POT may be more efficient</li>
+<li>Consider whether the phenomena clusters (requiring declustering for POT)</li>
+</ul>
+<p><strong>Model validation</strong> should never be skipped. Diagnostic plots reveal whether your fitted model is trustworthy. A poor fit means unreliable return level estimates---better to acknowledge uncertainty than to report precise but wrong numbers.</p>
+<p><strong>Stationarity testing</strong> is especially important for long records or climate-sensitive variables. If a trend is detected, report both stationary and non-stationary results, explaining the implications of each.</p>
+<p><strong>Uncertainty quantification</strong> through confidence intervals is essential. Point estimates alone are misleading; decision-makers need to understand the range of plausible values.</p>
+<h3 id="The-8-Step-EVA-Checklist">The 8-Step EVA Checklist<a class="anchor-link" href="#The-8-Step-EVA-Checklist">¶</a></h3><table>
 <thead>
 <tr>
 <th>Step</th>
@@ -10147,42 +10472,42 @@ Same level's return period in 2023: 7.0 years
 <tr>
 <td>1</td>
 <td><strong>Data preparation</strong></td>
-<td>Missing values? Outliers? Units?</td>
+<td>Missing values? Outliers? Units consistent? Record complete?</td>
 </tr>
 <tr>
 <td>2</td>
 <td><strong>Method selection</strong></td>
-<td>Block maxima or POT? How frequent are events of interest?</td>
+<td>Block maxima or POT? What return periods are of interest?</td>
 </tr>
 <tr>
 <td>3</td>
 <td><strong>Extract extremes</strong></td>
-<td>Annual maxima or threshold exceedances</td>
+<td>Annual maxima? Threshold exceedances? (If POT, which threshold?)</td>
 </tr>
 <tr>
 <td>4</td>
 <td><strong>Fit distribution</strong></td>
-<td>GEV for block maxima, GPD for POT</td>
+<td>GEV for block maxima, GPD for POT. Did optimization converge?</td>
 </tr>
 <tr>
 <td>5</td>
 <td><strong>Diagnostic checks</strong></td>
-<td>Does the model fit the data?</td>
+<td>Q-Q plot reasonable? Return level plot consistent?</td>
 </tr>
 <tr>
 <td>6</td>
 <td><strong>Trend testing</strong></td>
-<td>Is stationarity valid?</td>
+<td>Is there evidence for non-stationarity? If yes, fit non-stationary model</td>
 </tr>
 <tr>
 <td>7</td>
-<td><strong>Return levels</strong></td>
-<td>Calculate levels with confidence intervals</td>
+<td><strong>Return levels + CI</strong></td>
+<td>Calculate levels with bootstrap confidence intervals</td>
 </tr>
 <tr>
 <td>8</td>
 <td><strong>Interpretation</strong></td>
-<td>Physical meaning? Limitations?</td>
+<td>What do results mean physically? What are the limitations?</td>
 </tr>
 </tbody>
 </table>
@@ -10273,17 +10598,31 @@ Significant trend?                               No                  Yes
 <li>Always check diagnostic plots before trusting results</li>
 <li>Report confidence intervals, not just point estimates</li>
 <li>Consider physical mechanisms when interpreting shape parameters</li>
-<li>Test for non-stationarity when analyzing long records</li>
-<li>Use domain knowledge to sanity-check results</li>
+<li>Test for non-stationarity when analyzing long records or climate-sensitive variables</li>
+<li>Use domain knowledge to sanity-check results (is the 100-year flood physically plausible?)</li>
+<li>Document your methodological choices (threshold selection, declustering parameters, etc.)</li>
+<li>Be transparent about limitations and uncertainties</li>
 </ul>
 <p><strong>Don't:</strong></p>
 <ul>
 <li>Extrapolate far beyond the data (e.g., 10,000-year events from 50 years of data)</li>
 <li>Ignore the uncertainty in shape parameter estimates</li>
-<li>Assume stationarity without testing</li>
+<li>Assume stationarity without testing, especially for long records</li>
 <li>Forget the scipy sign convention when using scipy directly</li>
-<li>Over-interpret small differences between methods</li>
+<li>Over-interpret small differences between methods (GEV vs GPD should roughly agree)</li>
+<li>Report excessive precision (3.1415927 inches is false precision for a return level)</li>
 </ul>
+<h3 id="Reporting-EVA-Results">Reporting EVA Results<a class="anchor-link" href="#Reporting-EVA-Results">¶</a></h3><p>When presenting EVA results to stakeholders, include:</p>
+<ol>
+<li><strong>Data description:</strong> Source, time period, quality control steps</li>
+<li><strong>Method justification:</strong> Why block maxima vs. POT? Why this threshold?</li>
+<li><strong>Parameter estimates:</strong> With standard errors or confidence intervals</li>
+<li><strong>Diagnostic assessment:</strong> Show or summarize diagnostic plots; acknowledge any issues</li>
+<li><strong>Return level table:</strong> Multiple return periods, with confidence intervals</li>
+<li><strong>Trend assessment:</strong> Whether tested, results, implications</li>
+<li><strong>Limitations:</strong> Sample size constraints, extrapolation caveats, stationarity assumptions</li>
+</ol>
+<p>Transparency builds trust. Acknowledging limitations does not undermine your analysis; it demonstrates scientific integrity.</p>
 </div>
 </div>
 </div>
@@ -10294,39 +10633,49 @@ Significant trend?                               No                  Yes
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="Common-Pitfalls">Common Pitfalls<a class="anchor-link" href="#Common-Pitfalls">¶</a></h3><table>
+<h3 id="Common-Pitfalls-and-How-to-Avoid-Them">Common Pitfalls and How to Avoid Them<a class="anchor-link" href="#Common-Pitfalls-and-How-to-Avoid-Them">¶</a></h3><table>
 <thead>
 <tr>
 <th>Pitfall</th>
-<th>Problem</th>
-<th>Solution</th>
+<th>What Goes Wrong</th>
+<th>How to Avoid</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Short records</td>
-<td>High uncertainty, especially for ξ</td>
-<td>Use bootstrap CI; acknowledge limitations</td>
+<td><strong>Short records</strong></td>
+<td>High uncertainty, especially for shape parameter $\xi$. 100-year estimates from 30 years of data are speculative.</td>
+<td>Use bootstrap CI to quantify uncertainty. Be conservative; acknowledge limitations. Consider regional pooling.</td>
 </tr>
 <tr>
-<td>Ignoring dependence</td>
-<td>Violates i.i.d. assumption</td>
-<td>Use declustering for POT; annual blocks for GEV</td>
+<td><strong>Ignoring dependence</strong></td>
+<td>Treating clustered observations as independent inflates sample size and underestimates variance.</td>
+<td>Use declustering for POT. For block maxima, annual blocks usually ensure independence.</td>
 </tr>
 <tr>
-<td>Wrong threshold</td>
-<td>Bias in GPD estimates</td>
-<td>Use MRL and stability plots</td>
+<td><strong>Wrong threshold (POT)</strong></td>
+<td>Too low: bias from non-extreme data. Too high: excess variance from small sample.</td>
+<td>Use MRL and parameter stability plots. Aim for 50+ exceedances. Check sensitivity to threshold choice.</td>
 </tr>
 <tr>
-<td>Assuming stationarity</td>
-<td>Underestimate future risk</td>
-<td>Test for trends; use non-stationary models</td>
+<td><strong>Assuming stationarity</strong></td>
+<td>If extremes are trending, stationary model averages across changing conditions, misrepresenting current risk.</td>
+<td>Test for trends using LRT or AIC. For long records or climate-sensitive variables, assume non-stationarity is possible.</td>
 </tr>
 <tr>
-<td>scipy sign convention</td>
-<td>Wrong tail interpretation</td>
-<td>Use xtimeseries or convert: ξ = -c</td>
+<td><strong>scipy sign convention</strong></td>
+<td>Interpreting scipy's negative $c$ as a light tail when it's actually heavy (or vice versa).</td>
+<td>Use xtimeseries, which follows climate convention. Or remember: $\xi_{climate} = -c_{scipy}$.</td>
+</tr>
+<tr>
+<td><strong>Over-extrapolation</strong></td>
+<td>Estimating 1000-year events from 50 years of data. The shape parameter uncertainty dominates, and small changes in $\xi$ produce large changes in extreme return levels.</td>
+<td>Be skeptical of return periods &gt; 2x record length. Use regional or physical constraints. Report wide CI honestly.</td>
+</tr>
+<tr>
+<td><strong>Ignoring physical bounds</strong></td>
+<td>Reporting return levels that are physically impossible (negative precipitation, surge higher than physically possible).</td>
+<td>Use domain knowledge to constrain estimates. A Weibull ($\xi &lt; 0$) fit with a plausible upper bound may be appropriate.</td>
 </tr>
 </tbody>
 </table>
@@ -10341,29 +10690,75 @@ Significant trend?                               No                  Yes
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <hr/>
-<h2 id="10.-Exercises-and-Further-Reading">10. Exercises and Further Reading<a class="anchor-link" href="#10.-Exercises-and-Further-Reading">¶</a></h2><h3 id="Practice-Exercises">Practice Exercises<a class="anchor-link" href="#Practice-Exercises">¶</a></h3><p><strong>Exercise 1: Minimum Temperature Analysis</strong></p>
-<p>The New Brunswick dataset includes daily minimum temperatures (<code>TMIN</code>). Perform an EVA of annual minimum temperatures:</p>
+<h2 id="10.-Exercises-and-Further-Reading">10. Exercises and Further Reading<a class="anchor-link" href="#10.-Exercises-and-Further-Reading">¶</a></h2><h3 id="Reinforcing-Your-Understanding">Reinforcing Your Understanding<a class="anchor-link" href="#Reinforcing-Your-Understanding">¶</a></h3><p>The exercises below provide opportunities to apply the concepts from this tutorial. They use the same datasets (New Brunswick weather and Atlantic City surge) to ensure you can focus on methodology rather than data wrangling. Try to complete each exercise before looking at hints.</p>
+<p><strong>Exercise 1: Extreme Cold Analysis</strong></p>
+<p>The New Brunswick dataset includes daily minimum temperatures (<code>TMIN</code>). Cold extremes are just as important as heat extremes for infrastructure (freezing pipes, frost damage, heating demand).</p>
+<p><strong>Tasks:</strong></p>
 <ol>
-<li>Extract annual minima (not maxima)</li>
-<li>Fit a GEV distribution</li>
+<li>Extract annual <em>minima</em> of daily minimum temperature</li>
+<li>Fit a GEV distribution (remember: for minima, negate the data, fit GEV, then negate results back)</li>
 <li>Calculate the 50-year return level for extreme cold</li>
+<li>Interpret: what is the expected coldest night in 50 years?</li>
 </ol>
-<p><em>Hint: For minima, work with negated values or use <code>xts.block_minima()</code></em></p>
-<p><strong>Exercise 2: Threshold Sensitivity</strong></p>
-<p>For the precipitation POT analysis:</p>
+<p><strong>Hints:</strong></p>
+<ul>
+<li>Use <code>annual_min = df['TMIN'].resample('YE').min()</code> to extract minima</li>
+<li>Alternatively, negate the series: <code>annual_max_neg = (-df['TMIN']).resample('YE').max()</code></li>
+<li>The GEV of $-X$ gives the distribution of $-\min(X) = \max(-X)$</li>
+<li>Don't forget to negate your return level back to the original scale</li>
+</ul>
+<p><strong>Discussion:</strong> Is the shape parameter for cold extremes similar to or different from warm extremes? What might cause differences?</p>
+<hr/>
+<p><strong>Exercise 2: Threshold Sensitivity in POT</strong></p>
+<p>One concern with POT analysis is that results may depend on the threshold choice. This exercise explores that sensitivity.</p>
+<p><strong>Tasks:</strong></p>
 <ol>
-<li>Try thresholds at the 90th, 95th, and 99th percentiles</li>
-<li>Compare the 100-year return level estimates</li>
-<li>How sensitive are the results to threshold choice?</li>
+<li>Perform POT analysis on precipitation with thresholds at the 90th, 95th, and 99th percentiles</li>
+<li>For each threshold, fit the GPD and calculate the 100-year return level</li>
+<li>Create a table comparing: threshold value, number of exceedances, GPD parameters, 100-year return level</li>
+<li>How sensitive is the 100-year estimate to threshold choice?</li>
 </ol>
-<p><strong>Exercise 3: Trend Analysis</strong></p>
-<p>Test for trends in the New Brunswick daily maximum temperature (<code>TMAX</code>):</p>
+<p><strong>Hints:</strong></p>
+<ul>
+<li>Use <code>np.percentile(prcp_daily, [90, 95, 99])</code> to get threshold values</li>
+<li>Track both parameters and the final return level</li>
+<li>If results vary dramatically, this suggests the GPD approximation may not be stable</li>
+</ul>
+<p><strong>Discussion:</strong> At what threshold does the analysis become unreliable due to too few exceedances? How would you choose between a 90th and 95th percentile threshold in practice?</p>
+<hr/>
+<p><strong>Exercise 3: Temperature Trend Analysis</strong></p>
+<p>Apply non-stationary analysis to extreme heat.</p>
+<p><strong>Tasks:</strong></p>
 <ol>
-<li>Extract annual maximum temperatures</li>
-<li>Apply the likelihood ratio test</li>
-<li>If significant, fit a non-stationary GEV</li>
-<li>How has the 100-year extreme temperature changed?</li>
+<li>Extract annual maximum temperatures (<code>TMAX</code>) from New Brunswick</li>
+<li>Test for a trend using the likelihood ratio test</li>
+<li>If significant, fit a non-stationary GEV with trend in location</li>
+<li>Calculate the 100-year extreme temperature for 1970 vs. 2020</li>
+<li>Interpret: how much has the 100-year heat extreme changed?</li>
 </ol>
+<p><strong>Hints:</strong></p>
+<ul>
+<li>Follow the same workflow used for storm surge</li>
+<li>Use <code>xts.likelihood_ratio_test()</code> and <code>xts.fit_nonstationary_gev()</code></li>
+<li>Compare return levels at the start and end of the record</li>
+</ul>
+<p><strong>Discussion:</strong> How does the temperature trend compare to the surge trend in magnitude and significance? What physical factors might explain any trend you find?</p>
+<hr/>
+<p><strong>Exercise 4: Comparing GEV and GPD Estimates (Advanced)</strong></p>
+<p>Theory says GEV (block maxima) and GPD (POT) should give consistent results if both are valid. Test this for storm surge.</p>
+<p><strong>Tasks:</strong></p>
+<ol>
+<li>Fit a GEV to annual maximum storm surge (already done in the tutorial)</li>
+<li>Perform POT analysis on daily surge with an appropriate threshold</li>
+<li>Compare the 50-year return levels from both methods</li>
+<li>Are they consistent? If not, what might explain the difference?</li>
+</ol>
+<p><strong>Hints:</strong></p>
+<ul>
+<li>For surge, a threshold around the 99th percentile may be appropriate (fewer events than precipitation)</li>
+<li>Remember to decluster---storm events can last multiple days</li>
+<li>Use the formula connecting GPD and GEV to check for consistency</li>
+</ul>
 </div>
 </div>
 </div>
@@ -10374,24 +10769,42 @@ Significant trend?                               No                  Yes
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">¶</a></h3><p><strong>Foundational Texts:</strong></p>
+<h3 id="Further-Reading">Further Reading<a class="anchor-link" href="#Further-Reading">¶</a></h3><p>The references below provide pathways for deeper study. They are organized by topic, with brief annotations to help you choose where to start.</p>
+<p><strong>Foundational Textbooks:</strong></p>
 <ul>
-<li>Coles, S. (2001). <em>An Introduction to Statistical Modeling of Extreme Values</em>. Springer. — The classic reference for EVA.</li>
-<li>Beirlant, J., et al. (2004). <em>Statistics of Extremes: Theory and Applications</em>. Wiley.</li>
+<li><p><strong>Coles, S. (2001). <em>An Introduction to Statistical Modeling of Extreme Values</em>. Springer.</strong>
+The classic introductory text. Accessible to readers with undergraduate statistics background. Covers GEV, GPD, threshold selection, and non-stationarity. Highly recommended as a first deep dive.</p>
+</li>
+<li><p><strong>Beirlant, J., et al. (2004). <em>Statistics of Extremes: Theory and Applications</em>. Wiley.</strong>
+More mathematically rigorous than Coles. Good for readers wanting deeper theoretical understanding. Covers additional topics like multivariate extremes and dependent data.</p>
+</li>
+<li><p><strong>de Haan, L., &amp; Ferreira, A. (2006). <em>Extreme Value Theory: An Introduction</em>. Springer.</strong>
+Mathematically sophisticated treatment. Best for those with graduate-level probability background. Provides rigorous proofs of foundational theorems.</p>
+</li>
 </ul>
-<p><strong>Climate Applications:</strong></p>
+<p><strong>Climate and Hydrology Applications:</strong></p>
 <ul>
-<li>Katz, R.W., et al. (2002). "Statistics of extremes in hydrology." <em>Advances in Water Resources</em>, 25, 1287-1304.</li>
-<li>Kharin, V.V., &amp; Zwiers, F.W. (2005). "Estimating extremes in transient climate change simulations." <em>J. Climate</em>, 18, 1156-1173.</li>
+<li><p><strong>Katz, R.W., Parlange, M.B., &amp; Naveau, P. (2002). "Statistics of extremes in hydrology." <em>Advances in Water Resources</em>, 25, 1287-1304.</strong>
+Excellent review of EVA applications to floods, droughts, and precipitation. Discusses practical issues specific to hydrology.</p>
+</li>
+<li><p><strong>Kharin, V.V., &amp; Zwiers, F.W. (2005). "Estimating extremes in transient climate change simulations." <em>J. Climate</em>, 18, 1156-1173.</strong>
+Seminal paper on applying non-stationary EVA to climate model output. Essential reading for climate change applications.</p>
+</li>
 </ul>
-<p><strong>Non-Stationary EVA:</strong></p>
+<p><strong>Non-Stationary Analysis:</strong></p>
 <ul>
-<li>Cheng, L., et al. (2014). "Non-stationary extreme value analysis in a changing climate." <em>Climatic Change</em>, 127, 353-369.</li>
+<li><p><strong>Cheng, L., et al. (2014). "Non-stationary extreme value analysis in a changing climate." <em>Climatic Change</em>, 127, 353-369.</strong>
+Practical guidance on when and how to apply non-stationary methods. Includes case studies.</p>
+</li>
+<li><p><strong>Salas, J.D., &amp; Obeysekera, J. (2014). "Revisiting the concepts of return period and risk for nonstationary hydrologic extreme events." <em>J. Hydrologic Engineering</em>, 19, 554-568.</strong>
+Thoughtful discussion of how traditional concepts like "return period" must be reinterpreted under non-stationarity.</p>
+</li>
 </ul>
-<p><strong>xtimeseries Documentation:</strong></p>
+<p><strong>Software and Tools:</strong></p>
 <ul>
-<li><a href="https://xtimeseries.readthedocs.io/">API Reference</a></li>
-<li><a href="https://xtimeseries.readthedocs.io/en/latest/gallery/">Example Gallery</a></li>
+<li><strong>xtimeseries documentation:</strong> Comprehensive API reference and examples for the package used in this tutorial.</li>
+<li><strong>extRemes (R package):</strong> Widely used R package for EVA. Good documentation with many examples.</li>
+<li><strong>pyextremes (Python):</strong> Another Python option with similar functionality to xtimeseries.</li>
 </ul>
 </div>
 </div>
@@ -10404,27 +10817,33 @@ Significant trend?                               No                  Yes
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <hr/>
-<h2 id="Summary">Summary<a class="anchor-link" href="#Summary">¶</a></h2><p>In this chapter, you learned:</p>
+<h2 id="Summary">Summary<a class="anchor-link" href="#Summary">¶</a></h2><p>In this tutorial, you have learned the fundamentals of Extreme Value Analysis through a combination of theory and hands-on application. Let's recap the key takeaways:</p>
 <ol>
-<li><p><strong>Why EVA matters</strong>: Infrastructure and risk management depend on understanding rare extremes, not averages.</p>
+<li><p><strong>Why EVA matters:</strong> Infrastructure design, risk management, and climate adaptation depend on understanding rare extremes, not averages. Traditional statistics (means, standard deviations) tell us little about tail behavior.</p>
 </li>
-<li><p><strong>The Fisher-Tippett-Gnedenko Theorem</strong>: Block maxima converge to the GEV distribution, regardless of the parent distribution.</p>
+<li><p><strong>The Fisher-Tippett-Gnedenko Theorem:</strong> Block maxima converge to the GEV distribution, regardless of the parent distribution. This remarkable universality provides the theoretical foundation for EVA.</p>
 </li>
-<li><p><strong>The GEV distribution</strong>: Three parameters (location, scale, shape) fully characterize extreme value behavior. The shape parameter determines tail heaviness.</p>
+<li><p><strong>The GEV distribution:</strong> Three parameters---location ($\mu$), scale ($\sigma$), and shape ($\xi$)---fully characterize extreme value behavior. The shape parameter is key: $\xi &gt; 0$ means heavy tails (Fréchet), $\xi = 0$ means exponential tails (Gumbel), and $\xi &lt; 0$ means bounded tails (Weibull).</p>
 </li>
-<li><p><strong>Block maxima method</strong>: Extract annual maxima and fit GEV. Simple and widely used.</p>
+<li><p><strong>Block maxima method:</strong> Extract annual maxima and fit a GEV distribution. Simple, widely used, and theoretically grounded. Appropriate for estimating long return periods.</p>
 </li>
-<li><p><strong>Return levels and periods</strong>: Quantify "how extreme is extreme" with proper uncertainty bounds.</p>
+<li><p><strong>Return levels and periods:</strong> These quantify "how extreme is extreme" in actionable terms. Always report confidence intervals---point estimates alone are misleading. Remember: a "100-year event" has a 63% chance of occurring in any 100-year period.</p>
 </li>
-<li><p><strong>POT method</strong>: Uses more data by fitting GPD to threshold exceedances. Requires careful threshold selection.</p>
+<li><p><strong>Peaks over threshold (POT):</strong> Uses more data by fitting a GPD to threshold exceedances. Requires careful threshold selection and declustering. Best for moderate return periods or when many exceedances are available.</p>
 </li>
-<li><p><strong>Non-stationary analysis</strong>: Test for and model trends when stationarity is questionable.</p>
+<li><p><strong>Non-stationary analysis:</strong> Climate change and other factors can violate the stationarity assumption. The likelihood ratio test identifies significant trends. Non-stationary models allow return levels to evolve over time---essential for long-term planning.</p>
 </li>
-<li><p><strong>Practical workflow</strong>: Follow the 8-step checklist for rigorous EVA.</p>
+<li><p><strong>Practical workflow:</strong> Follow the 8-step checklist for rigorous EVA: data preparation, method selection, extreme extraction, distribution fitting, diagnostics, trend testing, return level calculation with CI, and interpretation.</p>
 </li>
 </ol>
+<p>The two case studies demonstrated these concepts with real data:</p>
+<ul>
+<li><strong>Precipitation</strong> showed heavy-tailed (Fréchet) behavior, with no significant trend over the 54-year record.</li>
+<li><strong>Storm surge</strong> showed near-Gumbel behavior with a significant upward trend, illustrating the impact of sea level rise on extreme water levels.</li>
+</ul>
+<p>Armed with these tools, you are now prepared to apply EVA to your own datasets. Remember to always check your assumptions, quantify uncertainty honestly, and interpret results in the context of the physical system you are studying.</p>
 <hr/>
-<p><em>This notebook was created as an educational resource for the xtimeseries package.</em></p>
+<p><em>This notebook is part of the xtimeseries documentation.</em></p>
 </div>
 </div>
 </div>
