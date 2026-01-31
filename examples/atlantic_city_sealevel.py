@@ -28,7 +28,7 @@ Station: 8534720 (Atlantic City, NJ)
 Usage:
     python examples/atlantic_city_sealevel.py
 
-Requires: tests/data/noaa_atlantic_city_tides.csv
+Requires: tests/data/noaa_atlantic_city_daily.csv
 Run 'python scripts/fetch_noaa_tides.py' first if data file is missing.
 """
 
@@ -43,7 +43,7 @@ import xtimeseries as xts
 # Configuration
 # ============================================================================
 
-DATA_FILE = Path(__file__).parent.parent / "tests" / "data" / "noaa_atlantic_city_tides.csv"
+DATA_FILE = Path(__file__).parent.parent / "tests" / "data" / "noaa_atlantic_city_daily.csv"
 OUTPUT_DIR = Path(__file__).parent.parent / "docs" / "_static"
 SAVE_FIGURES = True
 
@@ -61,7 +61,7 @@ def load_data() -> pd.DataFrame:
 
     df = pd.read_csv(DATA_FILE, parse_dates=["time"], index_col="time")
 
-    print(f"Loaded {len(df)} hourly records")
+    print(f"Loaded {len(df)} daily records")
     print(f"Date range: {df.index.min()} to {df.index.max()}")
     print(f"Columns: {', '.join(df.columns)}")
 
@@ -85,7 +85,7 @@ def prepare_surge_data(df: pd.DataFrame) -> pd.DataFrame:
     # Remove NaN
     surge = surge.dropna()
 
-    print(f"Hourly surge records: {len(surge)}")
+    print(f"Daily max surge records: {len(surge)}")
     print(f"Surge statistics (m):")
     print(f"  Min:  {surge.min():.3f}")
     print(f"  Max:  {surge.max():.3f}")
@@ -96,9 +96,8 @@ def prepare_surge_data(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def extract_daily_max_surge(surge_df: pd.DataFrame) -> pd.Series:
-    """Extract daily maximum surge."""
-    daily_max = surge_df["surge"].resample("D").max()
-    daily_max = daily_max.dropna()
+    """Extract daily maximum surge (data is already daily maxima)."""
+    daily_max = surge_df["surge"].dropna()
 
     print(f"\nDaily maximum surge records: {len(daily_max)}")
 

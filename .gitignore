@@ -50,9 +50,11 @@ docs/_build/
 # Jupyter
 .ipynb_checkpoints/
 
-# Data files (large)
-tests/data/*.csv
-tests/data/*.nc
+# Data files - block large files, allow processed timeseries
+tests/data/noaa_atlantic_city_tides.csv
+!tests/data/noaa_atlantic_city_daily.csv
+!tests/data/noaa_new_brunswick.csv
+!tests/data/cmip6_*.nc
 !tests/data/README.md
 
 # Environment variables
