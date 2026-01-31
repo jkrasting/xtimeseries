@@ -28,8 +28,8 @@ Data Sources
 
 **Climate Models:**
 
-- CMIP6 historical experiment (1950-2014)
-- Daily precipitation (pr variable)
+- CMIP6 historical experiment (1850-2014)
+- Daily precipitation (pr variable, converted to inches/day)
 - Nearest grid point to New Brunswick, NJ
 
 **Overlapping Period:** 1950-2014
@@ -67,24 +67,27 @@ Setup
 Loading Data
 ------------
 
-Load observations and model data:
+Load observations and model data, converting to inches/day:
 
 .. code-block:: python
 
-   # Observations
+   # Observations (convert mm to inches)
    df_obs = pd.read_csv(DATA_DIR / "noaa_new_brunswick.csv",
                         parse_dates=["date"], index_col="date")
-   obs_annual = df_obs["PRCP"].resample("YE").max()
+   obs_prcp = df_obs["PRCP"] / 25.4  # mm to inches
+   obs_annual = obs_prcp.resample("YE").max()
    obs_annual = obs_annual[(obs_annual.index.year >= START_YEAR) &
                            (obs_annual.index.year <= END_YEAR)]
 
-   # GFDL-CM4
+   # GFDL-CM4 (convert kg m-2 s-1 to inches/day)
    ds_gfdl = xr.open_dataset(DATA_DIR / "cmip6_gfdl-cm4_pr.nc")
-   gfdl_annual = ds_gfdl["pr"].resample(time="YE").max()
+   gfdl_pr = ds_gfdl["pr"].squeeze(drop=True) * 86400 / 25.4
+   gfdl_annual = gfdl_pr.resample(time="YE").max()
 
-   # CESM2
+   # CESM2 (convert kg m-2 s-1 to inches/day)
    ds_cesm = xr.open_dataset(DATA_DIR / "cmip6_cesm2_pr.nc")
-   cesm_annual = ds_cesm["pr"].resample(time="YE").max()
+   cesm_pr = ds_cesm["pr"].squeeze(drop=True) * 86400 / 25.4
+   cesm_annual = cesm_pr.resample(time="YE").max()
 
 .. figure:: /_static/model_comparison_timeseries.png
    :width: 700px
@@ -162,7 +165,7 @@ Compare return level curves:
        plt.semilogx(return_periods, rl, '-o', label=name)
 
    plt.xlabel('Return Period (years)')
-   plt.ylabel('Return Level (mm)')
+   plt.ylabel('Return Level (inches/day)')
    plt.legend()
    plt.grid(True, alpha=0.3)
 

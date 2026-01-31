@@ -64,6 +64,10 @@ def load_observations() -> tuple[np.ndarray, np.ndarray]:
 
     # Get precipitation and extract annual maximum
     prcp = df["PRCP"].dropna()
+
+    # Convert from mm to inches (25.4 mm per inch)
+    prcp = prcp / 25.4
+
     annual_max = prcp.resample("YE").max()
 
     # Filter to overlapping period
@@ -73,7 +77,7 @@ def load_observations() -> tuple[np.ndarray, np.ndarray]:
     years = annual_max.index.year.values
 
     print(f"Observations: {len(values)} years ({years[0]}-{years[-1]})")
-    print(f"  Range: {values.min():.1f} - {values.max():.1f} mm")
+    print(f"  Range: {values.min():.2f} - {values.max():.2f} inches")
 
     return values, years
 
@@ -90,6 +94,13 @@ def load_model_data(model_name: str) -> tuple[np.ndarray, np.ndarray]:
 
     ds = xr.open_dataset(model_file)
     da = ds["pr"]
+
+    # Squeeze out singleton dimensions (member_id, dcpp_init_year)
+    da = da.squeeze(drop=True)
+
+    # Convert units: kg m-2 s-1 to inches/day
+    # 1 kg/m2 = 1 mm of water, 86400 seconds/day, 25.4 mm/inch
+    da = da * 86400 / 25.4
 
     # Extract annual maximum
     annual_max = da.resample(time="YE").max()
@@ -108,7 +119,7 @@ def load_model_data(model_name: str) -> tuple[np.ndarray, np.ndarray]:
     years = years[valid]
 
     print(f"{model_name}: {len(values)} years ({years[0]}-{years[-1]})")
-    print(f"  Range: {values.min():.1f} - {values.max():.1f} mm/day")
+    print(f"  Range: {values.min():.2f} - {values.max():.2f} inches/day")
 
     return values, years
 
@@ -133,7 +144,7 @@ def plot_timeseries(data_dict: dict):
         )
 
     ax.set_xlabel("Year")
-    ax.set_ylabel("Annual Maximum Precipitation (mm or mm/day)")
+    ax.set_ylabel("Annual Maximum Precipitation (inches/day)")
     ax.set_title("Annual Maximum Precipitation: Observations vs Climate Models")
     ax.legend()
     ax.grid(True, alpha=0.3)
@@ -242,7 +253,7 @@ def plot_return_levels(data_dict: dict, gev_params: dict):
         ax.scatter(empirical_rp, sorted_vals, color=colors[name], s=20, alpha=0.5, zorder=2)
 
     ax.set_xlabel("Return Period (years)")
-    ax.set_ylabel("Return Level (mm or mm/day)")
+    ax.set_ylabel("Return Level (inches/day)")
     ax.set_title("Return Level Comparison: Observations vs Climate Models")
     ax.legend()
     ax.grid(True, alpha=0.3, which="both")

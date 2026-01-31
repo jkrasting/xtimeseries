@@ -22,15 +22,27 @@ Requires NOAA API token from: https://www.ncdc.noaa.gov/cdo-web/token
 
 ### CMIP6 Model Data
 
-**Files:** `cmip6_*.nc` (to be generated)
+**Files:** `cmip6_gfdl-cm4_pr.nc`, `cmip6_cesm2_pr.nc`
 
-- **Source:** Pangeo CMIP6 on Google Cloud
-- **Models:** GFDL-ESM4, GFDL-CM4, CESM2
+- **Source:** CMIP6 historical experiment
+- **Models:** GFDL-CM4, CESM2
 - **Experiment:** historical
-- **Variables:** tas, tasmax, tasmin, pr
-- **Location:** Point extraction for New Brunswick, NJ
+- **Period:** 1850-2014
+- **Variables:** pr (precipitation flux)
+- **Units:** kg m-2 s-1 (CMIP6 native units)
+- **Location:** Point extraction near Kennebunkport, ME (40.5°N, 285.625°E)
 
-To fetch this data, run:
+**Unit conversion in scripts:**
+The data files contain native CMIP6 precipitation flux units. Scripts convert
+to inches/day for analysis:
+
+```python
+# Convert kg m-2 s-1 to inches/day
+# 1 kg/m2 = 1 mm of water, 86400 seconds/day, 25.4 mm/inch
+pr_inches = pr * 86400 / 25.4
+```
+
+To fetch updated data, run:
 ```bash
 python scripts/fetch_cmip6_data.py
 ```

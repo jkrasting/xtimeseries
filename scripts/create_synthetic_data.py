@@ -85,11 +85,11 @@ def create_noaa_precipitation():
 
 
 def create_cmip6_data(model_name: str, bias: float = 0.0, trend: float = 0.0):
-    """Create synthetic CMIP6 precipitation data."""
+    """Create synthetic CMIP6 precipitation data in native CMIP6 units."""
     print(f"Creating synthetic {model_name} precipitation data...")
 
-    # Generate daily data from 1950-2014 (CMIP6 historical period)
-    times = pd.date_range("1950-01-01", "2014-12-31", freq="D")
+    # Generate daily data from 1850-2014 (full CMIP6 historical period)
+    times = pd.date_range("1850-01-01", "2014-12-31", freq="D")
     n = len(times)
 
     # Use different seed for each model
@@ -97,7 +97,7 @@ def create_cmip6_data(model_name: str, bias: float = 0.0, trend: float = 0.0):
     rng = np.random.default_rng(seed)
 
     # Generate precipitation with GEV-like extremes
-    # Base: exponential distribution
+    # Base: exponential distribution (in mm/day equivalent)
     base_prcp = rng.exponential(scale=4.0 + bias, size=n)
 
     # Seasonal pattern
@@ -118,15 +118,23 @@ def create_cmip6_data(model_name: str, bias: float = 0.0, trend: float = 0.0):
     zero_mask = rng.random(n) < 0.55
     prcp[zero_mask] = 0.0
 
-    # Create xarray Dataset
+    # Convert from mm/day to kg m-2 s-1 (CMIP6 native units)
+    # 1 mm/day = 1 kg/m2/day = 1/86400 kg/m2/s
+    prcp_flux = prcp / 86400.0
+
+    # Create xarray Dataset with CMIP6-like structure
     ds = xr.Dataset(
         {
             "pr": xr.DataArray(
-                prcp,
-                dims=["time"],
-                coords={"time": times},
+                prcp_flux[np.newaxis, np.newaxis, :],  # Add member_id, dcpp_init_year dims
+                dims=["member_id", "dcpp_init_year", "time"],
+                coords={
+                    "member_id": ["r1i1p1f1"],
+                    "dcpp_init_year": [np.nan],
+                    "time": times,
+                },
                 attrs={
-                    "units": "mm/day",
+                    "units": "kg m-2 s-1",
                     "long_name": "Precipitation",
                     "standard_name": "precipitation_flux",
                 },
@@ -135,17 +143,22 @@ def create_cmip6_data(model_name: str, bias: float = 0.0, trend: float = 0.0):
         attrs={
             "source_model": model_name,
             "experiment": "historical",
-            "target_lat": 40.49,
-            "target_lon": -74.45,
+            "activity_id": "CMIP",
         },
     )
+
+    # Add lat/lon as scalar coordinates
+    ds = ds.assign_coords(lat=40.5, lon=285.625)
 
     # Save
     output_file = OUTPUT_DIR / f"cmip6_{model_name.lower()}_pr.nc"
     ds.to_netcdf(output_file)
     print(f"  Saved: {output_file}")
     print(f"  Records: {len(ds.time)}")
-    print(f"  Max precip: {ds['pr'].max().values:.1f} mm/day")
+
+    # Report max in inches/day for comparison
+    max_inches = ds['pr'].max().values * 86400 / 25.4
+    print(f"  Max precip: {max_inches:.2f} inches/day")
 
     return ds
 

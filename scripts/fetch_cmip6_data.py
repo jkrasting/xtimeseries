@@ -109,9 +109,10 @@ def convert_units(da, var_name):
         da = da - 273.15
         da.attrs["units"] = "degC"
     elif var_name == "pr":
-        # kg m-2 s-1 to mm/day
-        da = da * 86400
-        da.attrs["units"] = "mm/day"
+        # kg m-2 s-1 to inches/day
+        # 1 kg/m2 = 1 mm of water, 86400 seconds/day, 25.4 mm/inch
+        da = da * 86400 / 25.4
+        da.attrs["units"] = "inches/day"
     return da
 
 
