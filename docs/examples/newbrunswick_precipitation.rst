@@ -26,7 +26,7 @@ Data Source
 
 **Period:** 1968-2023 (approximately 55 years)
 
-**Variables:** Daily precipitation (PRCP) in mm
+**Variables:** Daily precipitation (PRCP) in inches, temperature (TMAX, TMIN) in °F
 
 **Source:** NOAA Climate Data Online (CDO) API
 
@@ -69,8 +69,8 @@ Extract the maximum daily precipitation for each year:
    years = annual_max.index.year.values
 
    print(f"Years: {years[0]} to {years[-1]} ({len(years)} years)")
-   print(f"Mean annual max: {values.mean():.1f} mm")
-   print(f"Max annual max: {values.max():.1f} mm")
+   print(f"Mean annual max: {values.mean():.2f} inches")
+   print(f"Max annual max: {values.max():.2f} inches")
 
 .. figure:: /_static/newbrunswick_annual_max.png
    :width: 600px
@@ -78,7 +78,7 @@ Extract the maximum daily precipitation for each year:
    :alt: Annual maximum precipitation time series
 
    Time series of annual maximum daily precipitation at New Brunswick, NJ
-   (1968-2023). The maximum event (202 mm) occurred during Hurricane Irene in 2011.
+   (1969-2023). The maximum event (~8 inches) occurred during Hurricane Irene in 2011.
 
 Stationary GEV Fit
 ------------------
@@ -90,14 +90,14 @@ Fit a stationary GEV distribution:
    params = xts.fit_gev(values)
 
    print("GEV Parameters:")
-   print(f"  Location (μ): {params['loc']:.2f} mm")
-   print(f"  Scale (σ):    {params['scale']:.2f} mm")
+   print(f"  Location (μ): {params['loc']:.2f} inches")
+   print(f"  Scale (σ):    {params['scale']:.2f} inches")
    print(f"  Shape (ξ):    {params['shape']:.3f}")
 
 For this station, the fitted parameters are approximately:
 
-- **Location (μ):** 67 mm - typical annual maximum
-- **Scale (σ):** 19 mm - spread of extremes
+- **Location (μ):** ~2.6 inches - typical annual maximum
+- **Scale (σ):** ~0.75 inches - spread of extremes
 - **Shape (ξ):** +0.35 - Fréchet type (heavy tail)
 
 The positive shape parameter indicates heavy upper tails where very large
@@ -167,17 +167,17 @@ Calculate return levels using the stationary model:
 
    for rp in [10, 50, 100]:
        rl = xts.return_level(rp, **params)
-       print(f"{rp:3d}-year return level: {rl:.1f} mm")
+       print(f"{rp:3d}-year return level: {rl:.2f} inches")
 
 Results for New Brunswick:
 
-==============  ==================
-Return Period   Return Level (mm)
-==============  ==================
-10-year         133
-50-year         228
-100-year        288
-==============  ==================
+==============  ======================
+Return Period   Return Level (inches)
+==============  ======================
+10-year         ~5.2
+50-year         ~9.0
+100-year        ~11.3
+==============  ======================
 
 These values can be used for:
 
@@ -196,15 +196,15 @@ would proceed with non-stationary analysis:
    # Only if lrt_result['significant'] or lrt_result['preferred_model'] == 'nonstationary'
    ns_params = xts.fit_nonstationary_gev(values, years, trend_in="loc")
 
-   print(f"Location intercept (μ₀): {ns_params['loc0']:.2f} mm")
-   print(f"Location trend (μ₁):     {ns_params['loc1']:.4f} mm/year")
-   print(f"Scale:                   {np.exp(ns_params['scale0']):.2f} mm")
+   print(f"Location intercept (μ₀): {ns_params['loc0']:.2f} inches")
+   print(f"Location trend (μ₁):     {ns_params['loc1']:.4f} inches/year")
+   print(f"Scale:                   {np.exp(ns_params['scale0']):.2f} inches")
    print(f"Shape:                   {ns_params['shape']:.3f}")
 
    # Time-varying return levels
    for year in [1970, 1995, 2020]:
        rl = xts.nonstationary_return_level(100, ns_params, year)
-       print(f"100-year level in {year}: {rl:.1f} mm")
+       print(f"100-year level in {year}: {rl:.2f} inches")
 
    # Effective return periods
    eff = xts.effective_return_level(
@@ -237,7 +237,7 @@ Key findings for New Brunswick, NJ precipitation:
 
 - **Shape parameter:** +0.35 (Fréchet type with heavy upper tail)
 - **Trend:** Not statistically significant (p=0.41)
-- **100-year return level:** ~288 mm
+- **100-year return level:** ~11.3 inches
 
 The absence of a significant trend in this 55-year record does not mean climate
 change is not affecting precipitation. The signal may be:

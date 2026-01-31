@@ -65,7 +65,7 @@ def fetch_year_data(year):
         "datatypeid": ",".join(DATA_TYPES),
         "startdate": f"{year}-01-01",
         "enddate": f"{year}-12-31",
-        "units": "metric",
+        "units": "standard",
         "limit": 1000,
     }
 

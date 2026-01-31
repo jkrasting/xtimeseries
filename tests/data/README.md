@@ -6,12 +6,13 @@ This directory contains cached test data files for integration testing.
 
 ### NOAA Cooperative Observer Data
 
-**File:** `noaa_new_brunswick.csv` (to be generated)
+**File:** `noaa_new_brunswick.csv`
 
 - **Source:** NOAA Climate Data Online API v2
 - **Station:** GHCND:USC00286055 (NEW BRUNSWICK 3 SE, NJ)
-- **Variables:** TMAX, TMIN, PRCP (daily)
+- **Variables:** TMAX, TMIN (°F), PRCP (inches) - daily values
 - **Coordinates:** ~40.49°N, -74.45°W
+- **Period:** 1969-2023
 
 To fetch this data, run:
 ```bash

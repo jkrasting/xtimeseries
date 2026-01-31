@@ -71,10 +71,10 @@ Load observations and model data, converting to inches/day:
 
 .. code-block:: python
 
-   # Observations (convert mm to inches)
+   # Observations (already in inches)
    df_obs = pd.read_csv(DATA_DIR / "noaa_new_brunswick.csv",
                         parse_dates=["date"], index_col="date")
-   obs_prcp = df_obs["PRCP"] / 25.4  # mm to inches
+   obs_prcp = df_obs["PRCP"]  # already in inches
    obs_annual = obs_prcp.resample("YE").max()
    obs_annual = obs_annual[(obs_annual.index.year >= START_YEAR) &
                            (obs_annual.index.year <= END_YEAR)]

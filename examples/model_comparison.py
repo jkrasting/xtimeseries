@@ -63,10 +63,8 @@ def load_observations() -> tuple[np.ndarray, np.ndarray]:
     df = pd.read_csv(obs_file, parse_dates=["date"], index_col="date")
 
     # Get precipitation and extract annual maximum
+    # Data is already in inches (standard NOAA units)
     prcp = df["PRCP"].dropna()
-
-    # Convert from mm to inches (25.4 mm per inch)
-    prcp = prcp / 25.4
 
     annual_max = prcp.resample("YE").max()
 

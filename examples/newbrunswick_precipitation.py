@@ -76,9 +76,9 @@ def extract_annual_maxima(df: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
 
     print(f"\nAnnual maxima extracted:")
     print(f"  Years: {years[0]} to {years[-1]} ({len(years)} years)")
-    print(f"  Min: {values.min():.1f} mm")
-    print(f"  Max: {values.max():.1f} mm")
-    print(f"  Mean: {values.mean():.1f} mm")
+    print(f"  Min: {values.min():.2f} inches")
+    print(f"  Max: {values.max():.2f} inches")
+    print(f"  Mean: {values.mean():.2f} inches")
 
     return values, years
 
@@ -93,7 +93,7 @@ def plot_annual_maxima(values: np.ndarray, years: np.ndarray, trend_line: np.nda
         ax.plot(years, trend_line, "r-", linewidth=2, label="Trend", zorder=2)
 
     ax.set_xlabel("Year")
-    ax.set_ylabel("Annual Maximum Precipitation (mm)")
+    ax.set_ylabel("Annual Maximum Precipitation (inches)")
     ax.set_title("Annual Maximum Daily Precipitation - New Brunswick, NJ")
     ax.legend()
     ax.grid(True, alpha=0.3)
@@ -116,8 +116,8 @@ def fit_stationary_gev(values: np.ndarray) -> dict:
 
     params = xts.fit_gev(values)
 
-    print(f"Location (μ): {params['loc']:.2f} mm")
-    print(f"Scale (σ):    {params['scale']:.2f} mm")
+    print(f"Location (μ): {params['loc']:.2f} inches")
+    print(f"Scale (σ):    {params['scale']:.2f} inches")
     print(f"Shape (ξ):    {params['shape']:.3f}")
 
     # Interpret shape parameter
@@ -180,10 +180,10 @@ def plot_trend_test(values: np.ndarray, years: np.ndarray, lrt_result: dict):
     # Add linear regression line
     slope, intercept = np.polyfit(years, values, 1)
     trend_line = intercept + slope * years
-    ax1.plot(years, trend_line, "r--", linewidth=2, label=f"Linear trend: {slope:.2f} mm/year")
+    ax1.plot(years, trend_line, "r--", linewidth=2, label=f"Linear trend: {slope:.3f} inches/year")
 
     ax1.set_xlabel("Year")
-    ax1.set_ylabel("Annual Maximum (mm)")
+    ax1.set_ylabel("Annual Maximum (inches)")
     ax1.set_title("Annual Maxima with Linear Trend")
     ax1.legend()
     ax1.grid(True, alpha=0.3)
@@ -234,17 +234,17 @@ def fit_nonstationary_gev(values: np.ndarray, years: np.ndarray) -> dict:
 
     params = xts.fit_nonstationary_gev(values, years, trend_in="loc")
 
-    print(f"Location intercept (μ₀): {params['loc0']:.2f} mm")
-    print(f"Location trend (μ₁):     {params['loc1']:.4f} mm/year")
-    print(f"Scale (exp(σ₀)):         {np.exp(params['scale0']):.2f} mm")
+    print(f"Location intercept (μ₀): {params['loc0']:.2f} inches")
+    print(f"Location trend (μ₁):     {params['loc1']:.4f} inches/year")
+    print(f"Scale (exp(σ₀)):         {np.exp(params['scale0']):.2f} inches")
     print(f"Shape (ξ):               {params['shape']:.3f}")
 
     # Interpret trend
     trend_per_decade = params["loc1"] * 10
     total_change = params["loc1"] * (years[-1] - years[0])
     print(f"\nTrend interpretation:")
-    print(f"  Change per decade:     {trend_per_decade:+.2f} mm/decade")
-    print(f"  Total change ({years[0]}-{years[-1]}): {total_change:+.2f} mm")
+    print(f"  Change per decade:     {trend_per_decade:+.3f} inches/decade")
+    print(f"  Total change ({years[0]}-{years[-1]}): {total_change:+.2f} inches")
 
     return params
 
@@ -278,7 +278,7 @@ def plot_nonstationary_fit(values: np.ndarray, years: np.ndarray, params: dict):
     )
 
     ax.set_xlabel("Year")
-    ax.set_ylabel("Annual Maximum Precipitation (mm)")
+    ax.set_ylabel("Annual Maximum Precipitation (inches)")
     ax.set_title("Non-Stationary GEV Fit - New Brunswick Precipitation")
     ax.legend(loc="upper left")
     ax.grid(True, alpha=0.3)
@@ -308,7 +308,7 @@ def plot_return_levels(years: np.ndarray, params: dict):
         ax.semilogx(return_periods, rl, "-o", color=color, linewidth=2, markersize=6, label=f"{year} ({label})")
 
     ax.set_xlabel("Return Period (years)")
-    ax.set_ylabel("Return Level (mm)")
+    ax.set_ylabel("Return Level (inches)")
     ax.set_title("Return Level Curves by Reference Year")
     ax.legend()
     ax.grid(True, alpha=0.3, which="both")
@@ -361,7 +361,7 @@ def plot_effective_return_periods(eff: dict):
     bars2 = ax1.bar(x + width / 2, eff["future_levels"], width, label=f"{int(eff['future_value'])}", color="C1")
 
     ax1.set_xlabel("Return Period (years)")
-    ax1.set_ylabel("Return Level (mm)")
+    ax1.set_ylabel("Return Level (inches)")
     ax1.set_title("Return Levels: Then vs Now")
     ax1.set_xticks(x)
     ax1.set_xticklabels([str(int(rp)) for rp in eff["return_periods"]])
@@ -433,9 +433,9 @@ def bootstrap_trend_uncertainty(values: np.ndarray, years: np.ndarray, n_bootstr
     ci_lower = np.percentile(trends, 2.5)
     ci_upper = np.percentile(trends, 97.5)
 
-    print(f"Point estimate:     {trends[0]:.5f} mm/year")
-    print(f"Bootstrap mean:     {trend_mean:.5f} mm/year")
-    print(f"Bootstrap std:      {trend_std:.5f} mm/year")
+    print(f"Point estimate:     {trends[0]:.5f} inches/year")
+    print(f"Bootstrap mean:     {trend_mean:.5f} inches/year")
+    print(f"Bootstrap std:      {trend_std:.5f} inches/year")
     print(f"95% CI:             [{ci_lower:.5f}, {ci_upper:.5f}]")
 
     # Is zero in the confidence interval?
@@ -503,7 +503,7 @@ def main():
 
     for rp in [10, 50, 100]:
         rl = xts.return_level(rp, loc=params_stat["loc"], scale=params_stat["scale"], shape=params_stat["shape"])
-        print(f"{rp:3d}-year return level: {rl:.1f} mm")
+        print(f"{rp:3d}-year return level: {rl:.2f} inches")
 
     plt.show()
 
