@@ -46,6 +46,7 @@ htmlcov/
 
 # Documentation
 docs/_build/
+docs/gallery/
 
 # Jupyter
 .ipynb_checkpoints/

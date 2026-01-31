@@ -78,13 +78,43 @@ The shape parameter has the same interpretation as for the GEV:
      - Beta tail
      - Bounded above at :math:`y = -\sigma/\xi`
 
-.. figure:: /_static/gpd_shapes.png
-   :width: 600px
-   :align: center
-   :alt: GPD distribution shapes
+.. plot::
+   :include-source:
 
-   The GPD for different shape parameters showing Pareto (ξ > 0),
-   Exponential (ξ = 0), and bounded (ξ < 0) tail behavior.
+   import numpy as np
+   import matplotlib.pyplot as plt
+   from scipy import stats
+
+   fig, ax = plt.subplots(figsize=(8, 5))
+   x = np.linspace(0.01, 6, 500)
+   scale = 1
+
+   shapes = [
+       (0.3, "Pareto tail (ξ = 0.3)", "tab:red"),
+       (0.0, "Exponential (ξ = 0)", "tab:green"),
+       (-0.3, "Bounded (ξ = -0.3)", "tab:blue"),
+   ]
+
+   for shape, label, color in shapes:
+       # scipy.stats.genpareto uses c = xi (same convention)
+       if shape < 0:
+           x_bounded = x[x < -scale / shape]
+           pdf = stats.genpareto.pdf(x_bounded, shape, loc=0, scale=scale)
+           ax.plot(x_bounded, pdf, label=label, color=color, linewidth=2)
+       else:
+           pdf = stats.genpareto.pdf(x, shape, loc=0, scale=scale)
+           ax.plot(x, pdf, label=label, color=color, linewidth=2)
+
+   ax.set_xlabel("x (exceedance)")
+   ax.set_ylabel("Probability Density")
+   ax.set_title("GPD for Different Shape Parameters")
+   ax.legend(loc="upper right")
+   ax.set_xlim(0, 6)
+   ax.set_ylim(0, 1.1)
+   plt.tight_layout()
+
+The GPD for different shape parameters showing Pareto (ξ > 0),
+Exponential (ξ = 0), and bounded (ξ < 0) tail behavior.
 
 Support of the Distribution
 ---------------------------

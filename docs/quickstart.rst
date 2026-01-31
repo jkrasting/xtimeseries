@@ -210,5 +210,5 @@ Next Steps
 ----------
 
 - Learn about the :doc:`theory behind extreme value analysis <theory/extreme_value_theory>`
-- See :doc:`worked examples <examples/temperature_extremes>` with real climate data
+- See :doc:`worked examples <gallery/index>` with real climate data
 - Explore the full :doc:`API reference <api/index>`

@@ -73,12 +73,7 @@ Contents
    :maxdepth: 2
    :caption: Examples
 
-   examples/temperature_extremes
-   examples/precipitation_idf
-   examples/trend_analysis
-   examples/newbrunswick_precipitation
-   examples/model_comparison
-   examples/atlantic_city_sealevel
+   gallery/index
 
 .. toctree::
    :maxdepth: 2

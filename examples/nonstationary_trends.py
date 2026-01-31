@@ -1,10 +1,11 @@
-#!/usr/bin/env python
 """
-Non-stationary extreme value analysis example.
+Non-Stationary Trend Analysis
+==============================
 
-This script demonstrates:
-- Generating data with known trends
-- Fitting non-stationary GEV
+This example demonstrates non-stationary extreme value analysis:
+
+- Generating data with known time trends
+- Fitting non-stationary GEV with time-varying location
 - Likelihood ratio test for trend significance
 - Calculating time-varying return levels
 - Understanding effective return periods

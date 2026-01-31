@@ -1,12 +1,13 @@
-#!/usr/bin/env python
 """
-Basic usage example for xtimeseries.
+Basic Usage
+===========
 
-This script demonstrates core functionality:
-- Generating synthetic data
-- Fitting GEV distribution
-- Calculating return levels
-- Bootstrap confidence intervals
+This example demonstrates the core functionality of xtimeseries:
+
+- Generating synthetic data with known GEV parameters
+- Fitting GEV distribution using maximum likelihood
+- Calculating return levels for various return periods
+- Bootstrap confidence intervals for uncertainty quantification
 """
 
 import numpy as np

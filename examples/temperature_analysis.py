@@ -1,12 +1,14 @@
-#!/usr/bin/env python
 """
-Temperature extreme analysis example.
+Temperature Extremes Analysis
+=============================
 
-This script demonstrates analyzing temperature extremes using:
-- Daily temperature data generation
-- Block maxima extraction
-- GEV fitting
-- Return level calculation
+This example demonstrates analyzing temperature extremes:
+
+- Generating synthetic daily temperature data with trends
+- Extracting block maxima (annual maximum temperatures)
+- Fitting GEV distribution to annual maxima
+- Calculating return levels for heat extremes
+- Non-stationary analysis to detect warming trends
 """
 
 import numpy as np

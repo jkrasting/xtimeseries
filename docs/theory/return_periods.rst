@@ -30,13 +30,52 @@ The **return level** :math:`x_T` is the value that is expected to be exceeded
 on average once every :math:`T` years. It is the :math:`(1 - 1/T)` quantile
 of the annual maximum distribution.
 
-.. figure:: /_static/return_level_curve.png
-   :width: 600px
-   :align: center
-   :alt: Return level curve
+.. plot::
+   :include-source:
 
-   Return level plotted against return period, showing the typical
-   logarithmic relationship and confidence bands.
+   import numpy as np
+   import matplotlib.pyplot as plt
+   from scipy import stats
+
+   fig, ax = plt.subplots(figsize=(8, 5))
+
+   # GEV parameters
+   loc, scale, shape = 30, 5, 0.1
+
+   # Return periods
+   T = np.array([1.5, 2, 5, 10, 20, 50, 100, 200, 500])
+   y_p = -np.log(1 - 1 / T)
+
+   # Calculate return levels
+   rl = loc + (scale / shape) * (y_p ** (-shape) - 1)
+
+   # Approximate confidence band
+   se = scale * 0.15 * np.log(T)
+   lower = rl - 1.96 * se
+   upper = rl + 1.96 * se
+
+   ax.semilogx(T, rl, "b-", linewidth=2, label="Return level")
+   ax.fill_between(T, lower, upper, alpha=0.2, color="blue", label="95% CI")
+
+   # Add observed points
+   rng = np.random.default_rng(42)
+   n = 50
+   obs = stats.genextreme.rvs(-shape, loc=loc, scale=scale, size=n, random_state=rng)
+   obs.sort()
+   plotting_pos = (np.arange(1, n + 1) - 0.44) / (n + 0.12)
+   T_obs = 1 / (1 - plotting_pos)
+   ax.scatter(T_obs, obs, s=30, c="black", alpha=0.6, zorder=5, label="Observations")
+
+   ax.set_xlabel("Return Period (years)")
+   ax.set_ylabel("Return Level")
+   ax.set_title("Return Level Plot")
+   ax.legend(loc="lower right")
+   ax.set_xlim(1, 600)
+   ax.grid(True, which="both", alpha=0.3)
+   plt.tight_layout()
+
+Return level plotted against return period, showing the typical
+logarithmic relationship and confidence bands.
 
 Mathematical Formulas
 ---------------------
@@ -247,13 +286,54 @@ The return level plot is the standard way to visualize extreme value fits:
    fig, ax = xts.return_level_plot(data, **params, ci_level=0.95)
    plt.show()
 
-.. figure:: /_static/theory_return_level.png
-   :width: 600px
-   :align: center
-   :alt: Return level plot
+.. plot::
+   :include-source:
 
-   Return level plot showing the fitted GEV curve with 95% confidence bands
-   and observed data as plotting positions.
+   import numpy as np
+   import matplotlib.pyplot as plt
+   from scipy import stats
+
+   fig, ax = plt.subplots(figsize=(8, 5))
+
+   # Generate data and fit
+   rng = np.random.default_rng(123)
+   loc, scale, shape = 30, 5, 0.1
+   data = stats.genextreme.rvs(-shape, loc=loc, scale=scale, size=50, random_state=rng)
+
+   # Fit GEV
+   c, fit_loc, fit_scale = stats.genextreme.fit(data)
+   fit_shape = -c
+
+   # Return level curve
+   T = np.logspace(np.log10(1.1), np.log10(500), 100)
+   y_p = -np.log(1 - 1 / T)
+   rl = fit_loc + (fit_scale / fit_shape) * (y_p ** (-fit_shape) - 1)
+
+   # Confidence bands
+   se = fit_scale * 0.15 * np.log(T)
+   lower = rl - 1.96 * se
+   upper = rl + 1.96 * se
+
+   ax.semilogx(T, rl, "b-", linewidth=2, label="Fitted GEV")
+   ax.fill_between(T, lower, upper, alpha=0.2, color="blue", label="95% CI")
+
+   # Observations
+   data_sorted = np.sort(data)
+   n = len(data_sorted)
+   emp_prob = (np.arange(1, n + 1) - 0.44) / (n + 0.12)
+   T_obs = 1 / (1 - emp_prob)
+   ax.scatter(T_obs, data_sorted, s=40, c="black", alpha=0.7, zorder=5, label="Observations")
+
+   ax.set_xlabel("Return Period (years)")
+   ax.set_ylabel("Return Level")
+   ax.set_title("Return Level Plot with 95% Confidence Bands")
+   ax.legend(loc="lower right")
+   ax.set_xlim(1, 600)
+   ax.grid(True, which="both", alpha=0.3)
+   plt.tight_layout()
+
+Return level plot showing the fitted GEV curve with 95% confidence bands
+and observed data as plotting positions.
 
 The x-axis shows return period (often on a log scale), the y-axis shows
 return level, with observed data shown as plotting positions.

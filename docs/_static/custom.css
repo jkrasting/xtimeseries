@@ -1,0 +1,8 @@
+/* Hide download links on sphinx-gallery example pages */
+.sphx-glr-download-link-note,
+.sphx-glr-download-python,
+.sphx-glr-download-jupyter,
+.sphx-glr-footer,
+.sphx-glr-footer-example {
+    display: none !important;
+}

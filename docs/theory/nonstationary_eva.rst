@@ -276,4 +276,4 @@ See Also
 - :doc:`extreme_value_theory` - EVT fundamentals
 - :func:`xtimeseries.fit_nonstationary_gev` - API reference
 - :func:`xtimeseries.likelihood_ratio_test` - Model comparison
-- :doc:`../examples/trend_analysis` - Worked example
+- :doc:`../gallery/nonstationary_trends` - Worked example

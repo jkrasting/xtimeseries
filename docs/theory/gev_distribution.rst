@@ -65,13 +65,37 @@ important parameter for extrapolation:
      - Weibull
      - Bounded upper tail at :math:`\mu - \sigma/\xi`. Typical for temperature maxima.
 
-.. figure:: /_static/gev_shapes.png
-   :width: 600px
-   :align: center
-   :alt: GEV distribution shapes
+.. plot::
+   :include-source:
 
-   The GEV distribution for different shape parameters: Fréchet (ξ > 0),
-   Gumbel (ξ = 0), and Weibull (ξ < 0).
+   import numpy as np
+   import matplotlib.pyplot as plt
+   from scipy import stats
+
+   fig, ax = plt.subplots(figsize=(8, 5))
+   x = np.linspace(-2, 8, 500)
+
+   shapes = [
+       (0.3, "Fréchet (ξ = 0.3)", "tab:red"),
+       (0.0, "Gumbel (ξ = 0)", "tab:green"),
+       (-0.3, "Weibull (ξ = -0.3)", "tab:blue"),
+   ]
+
+   for shape, label, color in shapes:
+       # scipy uses c = -xi
+       pdf = stats.genextreme.pdf(x, -shape, loc=0, scale=1)
+       ax.plot(x, pdf, label=label, color=color, linewidth=2)
+
+   ax.set_xlabel("x")
+   ax.set_ylabel("Probability Density")
+   ax.set_title("GEV Distribution for Different Shape Parameters")
+   ax.legend(loc="upper right")
+   ax.set_xlim(-2, 8)
+   ax.set_ylim(0, 0.45)
+   plt.tight_layout()
+
+The GEV distribution for different shape parameters: Fréchet (ξ > 0),
+Gumbel (ξ = 0), and Weibull (ξ < 0).
 
 Physical Interpretation
 ^^^^^^^^^^^^^^^^^^^^^^^

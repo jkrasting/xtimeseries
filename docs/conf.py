@@ -26,6 +26,8 @@ extensions = [
     "numpydoc",
     "myst_parser",
     "sphinx_copybutton",
+    "matplotlib.sphinxext.plot_directive",
+    "sphinx_gallery.gen_gallery",
 ]
 
 templates_path = ["_templates"]
@@ -43,6 +45,7 @@ master_doc = "index"
 # -- Options for HTML output -------------------------------------------------
 html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
+html_css_files = ["custom.css"]
 html_title = "xtimeseries"
 
 # Theme options
@@ -86,3 +89,23 @@ intersphinx_mapping = {
 # -- Copy button configuration -----------------------------------------------
 copybutton_prompt_text = r">>> |\.\.\. |\$ "
 copybutton_prompt_is_regexp = True
+
+# -- Plot directive settings -------------------------------------------------
+plot_include_source = True
+plot_html_show_source_link = True
+plot_html_show_formats = False
+plot_formats = [("png", 150)]
+
+# -- sphinx-gallery settings -------------------------------------------------
+sphinx_gallery_conf = {
+    "examples_dirs": ["../examples"],
+    "gallery_dirs": ["gallery"],
+    "filename_pattern": r".*\.py$",
+    "plot_gallery": "True",
+    "download_all_examples": False,
+    "remove_config_comments": True,
+    "show_memory": False,
+    "capture_repr": ("_repr_html_", "__repr__"),
+    "matplotlib_animations": True,
+    "show_signature": False,
+}
